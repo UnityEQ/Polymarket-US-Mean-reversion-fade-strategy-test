@@ -1,0 +1,19 @@
+**This text document is a TODO list for the Claude Agent to know what tasks need completed. After the tasks are completed, don't edit this file, this is just for me to communicate large amounts of information to you.**
+
+View trade logs to see if there is any improvements to make, also look at the issue below:
+
+In sports markets, during certain times (pre game, during game, and near end of game) strategies will be more or less succesful, have you gained any knowledge over time on what times things are most succesful? I'm sure they also differ by market as well. Im not sure how you would easily track that without it being complicated but thats an issue we will have to solve for monitor, trade, and scan. Below is documentation information about the time of games:
+
+Based on the search results, yes, the API provides date information for markets. The Market API includes date filters that indicate when markets start and end:
+
+Date Fields (ISO 8601 format):
+
+startDateMin / startDateMax - Filter markets by start date
+endDateMin / endDateMax - Filter markets by end/expiration date
+For sports markets specifically, there's a gameId field that links to the sports provider's game data.
+
+You can filter markets by these dates using query parameters like:
+
+GET /v1/markets?startDateMin=2025-01-01T00:00:00Z&endDateMax=2025-12-31T23:59:59Z
+
+
