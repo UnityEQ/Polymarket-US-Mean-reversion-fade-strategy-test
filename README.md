@@ -2,6 +2,23 @@
 
 A mean-reversion (FADE) trading system for the [Polymarket US](https://polymarket.us) prediction market. Monitors real-time sports market prices via WebSocket, detects price anomalies using z-score analysis, and auto-trades the spikes that revert.
 
+## Using Claude AI With This Project
+
+This entire project was built with [Claude Code](https://claude.ai/code) — an AI coding agent that lives in your terminal. The `CLAUDE.md` file in this repo teaches Claude everything about the architecture, API quirks, and strategy so it can debug, modify, and extend the code for you.
+
+**Quick start:**
+
+1. Download the Claude Code installer from [claude.ai/code](https://claude.ai/code) (requires an Anthropic account)
+2. Run the installer — it adds `claude` to your PATH
+3. Open a terminal in this project folder and type `claude`
+4. That's it. Claude reads `CLAUDE.md` automatically and knows the entire codebase. Ask it to analyze logs, fix bugs, tune parameters, add features, or explain how anything works.
+
+**Example things to ask Claude in this repo:**
+- "Analyze today's trade log and tell me what happened"
+- "Why did the bot take a loss on this market?"
+- "Add a new filter that blocks NBA markets"
+- "What's the current win rate and PnL?"
+
 ## Setup
 
 **Update your API credentials in all three creds files before running anything:**
