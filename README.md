@@ -3,7 +3,7 @@
 - Only test with a balance of $10 max. NEVER test live trades on big balances
 - You will not make money using this bot, it's strategy is highly dependant on alot of "noise."
 
-- This project is for understanding how to interact with the api in different ways
+- This project is for understanding how to interact with the api in different ways (this is just one of them)
 
 # Polymarket US Hunter
 
