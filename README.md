@@ -1,3 +1,10 @@
+# Disclaimer
+
+- Only test with a balance of $10 max. NEVER test live trades on big balances
+- You will not make money using this bot, it's strategy is highly dependant on alot of "noise."
+
+- This project is for understanding how to interact with the api in different ways
+
 # Polymarket US Hunter
 
 A mean-reversion (FADE) trading system for the [Polymarket US](https://polymarket.us) prediction market. Monitors real-time sports market prices via WebSocket, detects price anomalies using z-score analysis, and auto-trades the spikes that revert.
