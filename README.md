@@ -23,6 +23,8 @@ This entire project was built with [Claude Code](https://claude.ai/code) — an 
 
 **Update your API credentials in all three creds files before running anything:**
 
+Get API Keys here: https://polymarket.us/developer
+
 - `creds.ps1` — credentials for the monitor
 - `tcreds.ps1` — credentials for the trade bot (also sets `LIVE=true`)
 - `screds.ps1` — credentials for the scanner
