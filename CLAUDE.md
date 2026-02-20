@@ -12,7 +12,7 @@ Polymarket US CLOB Hunter — a two-process Python system for monitoring and tra
 Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/dips) using z-score analysis and writes signals to CSV files that the trade bot consumes.
 
 - **PolymarketUSClient**: REST client for market discovery and balance checks (runs every 5 min)
-- **MarketWebSocket**: Streams BBO data via `wss://api.polymarket.us/v1/ws/markets` using `SUBSCRIPTION_TYPE_MARKET_DATA_LITE` (subscription_type=2, batches of 100 slugs)
+- **MarketWebSocket**: Streams BBO data via `wss://api.polymarket.us/v1/ws/markets` using `SUBSCRIPTION_TYPE_MARKET_DATA_LITE` (subscription_type=2). Uses wildcard subscribe (`market_slugs: []`) to receive all markets in a single subscription — no batching or cap. Falls back to batched subscribes (100 per message) if wildcard fails.
 - **MonitorState**: Global singleton holding price history, mid cache, spread cache, regime tracking
 - **Signal pipeline**: BBO update → mid calculation → delta/z-score → percentile gate → severity classification → trade hint (FADE/TREND) → CSV output
 - **Regime detection**: Tracks spike outcomes to classify market as `MEAN_REVERT` or `TRENDING`
@@ -38,7 +38,7 @@ Standalone pre-flight tool. Runs its own mini z-score pipeline on WebSocket BBO 
 
 - **ActivityTracker**: Per-market `MarketState` with price history (deque of 50), computes z-scores on every BBO update. Tracks 4 weighted metrics: FADE-ready spikes (z 3.5-6.0 + spread < 4%, 35%), reversion rate (30%), volatile markets (z >= 1.5, 15%), tight-spread markets (< 4%, 20%).
 - **SpikeRecord**: Tracks every FADE-eligible spike. After 3 minutes, checks if price reverted >50% toward pre-spike mean. Maintains rolling 10-min window of checked spikes.
-- **WSStream**: Same WebSocket + BBO parsing as monitor.py (MARKET_DATA_LITE, batches of 100)
+- **WSStream**: Same WebSocket + BBO parsing as monitor.py (MARKET_DATA_LITE, wildcard subscribe with batched fallback)
 - **Game phase tracking**: `MARKET_META` dict stores timing fields per slug from discovery. `classify_game_phase()` (same logic as monitor.py) classifies FADE-ready markets by phase. If all FADE-ready markets are `PRE_GAME`, composite score gets 0.3x penalty.
 - **Alert**: Beeps when composite score >= 65 AND fade_ready >= 1 AND at least 3 checked spikes AND reversion rate >= 30%. Pre-game-only periods penalized via 0.3x multiplier.
 - **Output**: Console + `scanner-console-log.txt` (truncated each run via `tee_print()`)
@@ -80,6 +80,13 @@ $env:LIVE="true"; python trade.py    # Live mode (PowerShell)
 ```
 
 Debug: `DEBUG=1 python monitor.py` | `DEBUG_REJECTIONS=true python trade.py`
+
+```powershell
+# WebSocket wildcard test: verify empty market_slugs[] subscribes to all markets
+. .\creds.ps1
+python monitor.py --ws-test                # 30s default
+python monitor.py --ws-test --duration=60  # custom duration
+```
 
 ## Dependencies
 
@@ -206,6 +213,7 @@ Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volum
 - **Get market by slug**: `GET /v1/market/slug/{slug}` (SINGULAR `/v1/market/` + `slug/` prefix) — response wraps in `{"market": {...}}`, must unwrap. NOT `/v1/markets/{slug}`.
 - **Order book**: `GET /v1/markets/{slug}/book` — returns `{"marketData": {"bids": [...], "offers": [...], "state": "..."}}`. Each level has `{"px": {"value": "0.35"}, "qty": "10.5"}`. Primary source for bid/ask pricing.
 - **BBO**: `GET /v1/markets/{slug}/bbo` — returns BBO data but response format may not match expected `marketDataLite.bestBid/bestAsk` fields. Used as fallback only; order book endpoint is more reliable.
+- **WebSocket wildcard subscribe**: `market_slugs: []` subscribes to ALL active markets in one message. Server sends an initial snapshot burst (one message per market) then streams live BBO updates. Response uses camelCase (`marketDataLite`, `marketSlug`, `requestId`). Verified 2026-02-20: 216 unique slugs received (101.4% of REST-discovered 213, includes markets filtered by discovery).
 - WebSocket `MARKET_DATA_LITE` does NOT include `volume24hr` — only `sharesTraded` (lifetime) and `openInterest`. Volume requires REST polling (which returns nothing for sports markets).
 
 
