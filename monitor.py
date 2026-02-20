@@ -24,6 +24,7 @@ Requirements:
 """
 
 import os
+import sys
 import json
 import csv
 import time
@@ -855,6 +856,7 @@ class MarketWebSocket:
         self._thread: Optional[threading.Thread] = None
         self._reconnect_delay = WS_RECONNECT_BASE_SEC
         self._subscribed_slugs: Set[str] = set()
+        self._wildcard_subscribed: bool = False
         self._req_counter: int = 0
 
         if key_id and secret_key:
@@ -891,17 +893,31 @@ class MarketWebSocket:
         return f"sub_{self._req_counter}"
 
     def _subscribe_all(self):
-        """Subscribe to market data for all known slugs."""
+        """Subscribe to all market data via wildcard (empty market_slugs=[])."""
+        msg = {
+            "subscribe": {
+                "request_id": self._next_req_id(),
+                "subscription_type": 2,
+                "market_slugs": [],
+            }
+        }
+        try:
+            self._ws.send(json.dumps(msg))
+            self._wildcard_subscribed = True
+            logger.info("📡 Subscribed to ALL markets via wildcard (market_slugs: [])")
+        except Exception as e:
+            logger.warning(f"WS wildcard subscribe failed: {e}, falling back to batched")
+            self._wildcard_subscribed = False
+            self._subscribe_batched()
+
+    def _subscribe_batched(self):
+        """Fallback: subscribe in batches of 100 if wildcard fails."""
         slugs = list(STATE.meta.keys())
         if not slugs:
             return
-
-        # Docs: max 100 instruments per subscription
         batch_size = 100
         for i in range(0, len(slugs), batch_size):
             batch = slugs[i:i + batch_size]
-            # API uses snake_case field names and integer subscription_type
-            # subscription_type 2 = MARKET_DATA_LITE (lightweight price data)
             msg = {
                 "subscribe": {
                     "request_id": self._next_req_id(),
@@ -914,12 +930,13 @@ class MarketWebSocket:
                 self._subscribed_slugs.update(batch)
             except Exception as e:
                 logger.warning(f"WS subscribe batch failed: {e}")
-            time.sleep(0.05)  # Small gap between subscription messages
-
-        logger.info(f"📡 Subscribed to {len(self._subscribed_slugs)} markets via WebSocket ({len(slugs) // batch_size + 1} subscriptions)")
+            time.sleep(0.05)
+        logger.info(f"📡 Subscribed to {len(self._subscribed_slugs)} markets via batched fallback")
 
     def subscribe_new(self, slugs: List[str]):
-        """Subscribe to newly discovered markets (called after periodic refresh)."""
+        """No-op when wildcard is active (already receiving all markets)."""
+        if getattr(self, '_wildcard_subscribed', False):
+            return
         new_slugs = [s for s in slugs if s not in self._subscribed_slugs]
         if not new_slugs or not self._ws:
             return
@@ -1129,6 +1146,7 @@ class MarketWebSocket:
 
             STATE.ws_reconnects += 1
             self._subscribed_slugs.clear()
+            self._wildcard_subscribed = False
             logger.info(f"🔄 WS reconnecting in {self._reconnect_delay:.0f}s (attempt #{STATE.ws_reconnects})")
             time.sleep(self._reconnect_delay)
             self._reconnect_delay = min(self._reconnect_delay * 2, WS_RECONNECT_MAX_SEC)
@@ -1241,6 +1259,153 @@ def cleanup_thread():
             logger.error(f"Cleanup error: {e}")
 
 # -------------------- Main --------------------
+def ws_wildcard_test(duration: int = 30):
+    """Quick test: subscribe with empty market_slugs[] to see if server sends all markets."""
+    import threading as _thr
+
+    if not POLYMARKET_KEY_ID or not POLYMARKET_SECRET_KEY:
+        logger.error("❌ Set POLYMARKET_KEY_ID and POLYMARKET_SECRET_KEY")
+        return
+
+    if not HAS_WEBSOCKET:
+        logger.error("❌ websocket-client not installed")
+        return
+
+    # First discover markets so we know the total count
+    global CLIENT
+    CLIENT = PolymarketUSClient(POLYMARKET_KEY_ID, POLYMARKET_SECRET_KEY)
+    ensure_headers()
+    discover(refresh=True)
+    total_known = len(STATE.meta)
+    logger.info(f"[WS-TEST] {total_known} markets discovered via REST")
+
+    seen_slugs: set = set()
+    msg_count = [0]
+    errors = []
+    sub_response = []
+
+    def _sign(method, path, ts):
+        key_bytes = base64.b64decode(POLYMARKET_SECRET_KEY)
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+        pk = ed25519.Ed25519PrivateKey.from_private_bytes(key_bytes[:32])
+        sig = pk.sign(f"{ts}{method}{path}".encode())
+        return base64.b64encode(sig).decode()
+
+    def on_open(ws):
+        logger.info("[WS-TEST] Connected — sending wildcard subscribe (market_slugs: [])")
+        msg = json.dumps({
+            "subscribe": {
+                "request_id": "wildcard_test",
+                "subscription_type": 2,
+                "market_slugs": [],
+            }
+        })
+        ws.send(msg)
+        logger.info(f"[WS-TEST] Sent: {msg}")
+
+    def on_message(ws, raw):
+        msg_count[0] += 1
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            return
+
+        if "heartbeat" in data:
+            return
+
+        # Extract slug from any known message format
+        # Server may use camelCase (marketDataLite, requestId) or snake_case
+        found = False
+        for key in ("market_data_lite_subscription_update", "marketDataLiteSubscriptionUpdate",
+                     "market_data_subscription_update", "marketDataSubscriptionUpdate",
+                     "market_data_lite", "marketDataLite",
+                     "market_data", "marketData",
+                     "updates", "data"):
+            payload = data.get(key)
+            if payload is not None:
+                items = payload if isinstance(payload, list) else [payload]
+                for item in items:
+                    if isinstance(item, dict):
+                        s = item.get("market_slug") or item.get("marketSlug") or item.get("slug")
+                        if s:
+                            seen_slugs.add(s)
+                            found = True
+                break
+        # Flat message fallback
+        if not found:
+            s = data.get("market_slug") or data.get("marketSlug") or data.get("slug")
+            if s:
+                seen_slugs.add(s)
+
+        # Log first few BBO messages
+        if msg_count[0] <= 5:
+            logger.info(f"[WS-TEST] msg #{msg_count[0]}: {json.dumps(data)[:400]}")
+
+    def on_error(ws, err):
+        errors.append(str(err))
+        logger.error(f"[WS-TEST] Error: {err}")
+
+    def on_close(ws, code, msg):
+        logger.info(f"[WS-TEST] Closed (code={code}): {msg}")
+
+    ts = str(int(time.time() * 1000))
+    sig = _sign("GET", "/v1/ws/markets", ts)
+    headers = [
+        f"X-PM-Access-Key: {POLYMARKET_KEY_ID}",
+        f"X-PM-Timestamp: {ts}",
+        f"X-PM-Signature: {sig}",
+    ]
+
+    ws = ws_lib.WebSocketApp(
+        US_WS_URL, header=headers,
+        on_open=on_open, on_message=on_message,
+        on_error=on_error, on_close=on_close,
+    )
+
+    ws_thread = _thr.Thread(target=lambda: ws.run_forever(ping_interval=30, ping_timeout=10), daemon=True)
+    ws_thread.start()
+
+    logger.info(f"[WS-TEST] Listening for {duration}s...")
+    for elapsed in range(duration):
+        time.sleep(1)
+        if elapsed > 0 and elapsed % 5 == 0:
+            logger.info(f"[WS-TEST] {elapsed}s — {len(seen_slugs)} unique slugs, {msg_count[0]} messages")
+
+    ws.close()
+    time.sleep(0.5)
+
+    # ---- Results ----
+    logger.info("=" * 60)
+    logger.info("[WS-TEST] WILDCARD SUBSCRIBE RESULTS")
+    logger.info("=" * 60)
+    logger.info(f"  Duration:         {duration}s")
+    logger.info(f"  Total messages:   {msg_count[0]}")
+    logger.info(f"  Unique slugs:     {len(seen_slugs)}")
+    logger.info(f"  Known markets:    {total_known}")
+    logger.info(f"  Errors:           {len(errors)}")
+
+    if seen_slugs:
+        pct = len(seen_slugs) / total_known * 100 if total_known else 0
+        logger.info(f"  Coverage:         {pct:.1f}%")
+        if len(seen_slugs) >= total_known * 0.8:
+            logger.info("  VERDICT:          ✅ WILDCARD WORKS — empty slugs subscribes to all markets")
+        elif len(seen_slugs) > 0:
+            logger.info(f"  VERDICT:          ⚠️ PARTIAL — got {len(seen_slugs)}/{total_known}, may need longer listen or batched subs")
+        # Write seen slugs to file for inspection
+        with open("ws_test_slugs.txt", "w") as f:
+            for s in sorted(seen_slugs):
+                known_tag = "KNOWN" if s in STATE.meta else "NEW"
+                f.write(f"{s}  [{known_tag}]\n")
+        logger.info("  Slugs written to: ws_test_slugs.txt")
+    else:
+        logger.info("  VERDICT:          ❌ NO DATA — wildcard subscribe did not produce BBO updates")
+        if sub_response:
+            logger.info(f"  Sub response was: {json.dumps(sub_response[0])[:300]}")
+
+    if CLIENT:
+        CLIENT.close()
+
+
 def run():
     global CLIENT
 
@@ -1305,4 +1470,12 @@ def run():
     logger.info("👋 Bye!")
 
 if __name__ == "__main__":
-    run()
+    if "--ws-test" in sys.argv:
+        # Quick test: does subscribing with empty market_slugs[] get all markets?
+        dur = 30
+        for arg in sys.argv:
+            if arg.startswith("--duration="):
+                dur = int(arg.split("=")[1])
+        ws_wildcard_test(duration=dur)
+    else:
+        run()
