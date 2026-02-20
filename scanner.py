@@ -574,6 +574,7 @@ class WSStream:
         self._thread: Optional[threading.Thread] = None
         self._reconnect_delay = WS_RECONNECT_BASE_SEC
         self._subscribed: Set[str] = set()
+        self._wildcard_subscribed: bool = False
         self._req_counter = 0
         self._slugs: List[str] = []
         self.connected = False
@@ -608,6 +609,24 @@ class WSStream:
         self._subscribe_all()
 
     def _subscribe_all(self):
+        """Subscribe to all market data via wildcard (empty market_slugs=[])."""
+        msg = {
+            "subscribe": {
+                "request_id": self._next_req_id(),
+                "subscription_type": 2,
+                "market_slugs": [],
+            }
+        }
+        try:
+            self._ws.send(json.dumps(msg))
+            self._wildcard_subscribed = True
+            tee_print("  Subscribed to ALL markets via wildcard (market_slugs: [])")
+        except Exception:
+            self._wildcard_subscribed = False
+            self._subscribe_batched()
+
+    def _subscribe_batched(self):
+        """Fallback: subscribe in batches of 100 if wildcard fails."""
         slugs = self._slugs
         if not slugs:
             return
@@ -627,9 +646,12 @@ class WSStream:
             except Exception:
                 pass
             time.sleep(0.05)
-        tee_print(f"  Subscribed to {len(self._subscribed)} markets")
+        tee_print(f"  Subscribed to {len(self._subscribed)} markets via batched fallback")
 
     def subscribe_new(self, slugs: List[str]):
+        """No-op when wildcard is active (already receiving all markets)."""
+        if self._wildcard_subscribed:
+            return
         new = [s for s in slugs if s not in self._subscribed]
         if not new or not self._ws:
             return
@@ -776,6 +798,7 @@ class WSStream:
                 break
             self.reconnects += 1
             self._subscribed.clear()
+            self._wildcard_subscribed = False
             tee_print(f"  WS reconnecting in {self._reconnect_delay:.0f}s (#{self.reconnects})")
             time.sleep(self._reconnect_delay)
             self._reconnect_delay = min(self._reconnect_delay * 2, WS_RECONNECT_MAX_SEC)
