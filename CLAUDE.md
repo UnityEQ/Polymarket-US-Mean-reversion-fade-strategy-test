@@ -21,19 +21,19 @@ Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/d
 - **Output**: Writes to `poly_us_outliers_YYYY-MM-DD.csv` and `poly_us_triggers_YYYY-MM-DD.csv`
 
 ### `trade.py` — Trade Bot
-Tails the CSV files written by monitor.py and executes trades (paper or live). Implements a FADE-only mean-reversion strategy.
+Tails the CSV files written by monitor.py and executes trades (paper or live). Implements an adaptive FADE/TREND strategy selected per-market via signal clustering.
 
 - **PaperBroker**: Simulated broker using CSV mid prices from monitor + JSON mids file
 - **LiveBroker**: Real broker using Ed25519-signed REST calls to `api.polymarket.us`
 - **TailState**: File tailer that reads new CSV lines incrementally
 - **Signal parsing**: `row_to_signal_from_triggers()` and `row_to_signal_from_outliers()` extract (slug, side, mid, z) tuples with delta/spread/volume filters
 - **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase)
-- **Dual strategy**: FADE (mean reversion, default) and TREND (momentum following). `try_open()` selects strategy based on `game_phase`: live games (`UNKNOWN`) prefer TREND, others prefer FADE. TREND signal parsers (`row_to_trend_from_triggers/outliers`) enter WITH the move (SPIKE→BUY, DIP→BUY_NO) instead of against it. Each strategy has independent exit params via `get_exit_params(strategy)`.
+- **Adaptive strategy selection**: `SignalTracker` records signal directions per market. `choose_strategy()` counts same-direction signals in a 5-min window — if 75%+ of 10+ signals are same direction, uses TREND (sustained move); otherwise FADE (isolated spike reverts). `extract_signal_direction()` pulls SPIKE/DIP from raw CSV row before parsing. Log line shows `cluster=X/Y(Z%)` for TREND entries.
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel); close fallback also IOC
-- **FADE exit priority**: TP (10%) → SL (4%) → Trailing Stop (activate 4%, trail 2.5%, peak decays 25%/60s) → Breakeven (8min, 1.5% tolerance) → Time Exit (12min)
-- **TREND exit priority**: TP (12%) → SL (5%) → Trailing Stop (activate 2.5%, trail 2%) → Breakeven (4min, 1% tolerance) → Time Exit (8min)
+- **Exit priority**: TP (8%) → SL (4%) → Trailing Stop (activate 3.5%, trail 2%, peak decays 25%/60s) → Breakeven (10min, 1.5% tolerance) → Time Exit (12min)
 - **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
+- **Exec price guard**: Before BE and time exits, checks if executable price would cause loss > SL_PCT. If so, defers to SL logic instead — prevents gap losses when mid looks flat but book has moved.
 - **Output**: Writes to `poly_us_trades_YYYY-MM-DD.csv` (includes `strategy` column)
 
 ### `scanner.py` — Activity Scanner
@@ -101,17 +101,17 @@ pip install websocket-client requests cryptography psutil
 
 **monitor.py**: `BASE_SPIKE_THRESHOLD=0.003`, `BASE_Z_SCORE_MIN=0.8`, `WATCH_Z=1.5`, `ALERT_Z=3.0`, `MAX_SPREAD_PCT=0.15`, `MID_MIN=0.12`, `MID_MAX=0.55`, `HISTORY_LEN=50`, `V24_MIN=10`, `SHARES_ACTIVITY_MIN=50`, `COOLDOWN_PER_SLUG=60`, `VOLUME_REFRESH_SEC=60`, `MARKET_REFRESH_SEC=300`
 
-**trade.py (FADE)**: `Z_OPEN=3.5`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.10`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=480`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.04`, `TRAILING_STOP_PCT=0.025`
+**trade.py (FADE)**: `Z_OPEN=4.0`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.08`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=600`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.035`, `TRAILING_STOP_PCT=0.02`
 
-**trade.py (TREND)**: `ENABLE_TREND=True`, `TREND_Z_OPEN=3.5`, `TREND_Z_OPEN_OUTLIER=4.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_BREAKEVEN_EXIT_SEC=240`, `TREND_BREAKEVEN_TOLERANCE=0.01`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`
+**trade.py (TREND)**: `ENABLE_TREND=True` (adaptive), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection**: `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=2`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.45`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-0.30`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. Strategy selection: live games (`UNKNOWN` phase) prefer TREND, others prefer FADE. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.45`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
 **monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing)
 
-**trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection + book spread guard), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`, `circuit_breaker`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
+**trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `SignalTracker` (adaptive strategy selection via signal clustering — records per-market signal directions, `choose_strategy()` returns FADE or TREND based on 5-min window ratio), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection + book spread guard), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`, `circuit_breaker`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `extract_signal_direction()` gets SPIKE/DIP from raw row, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
 
 **scanner.py**: `RestClient` (minimal REST for market discovery), `SpikeRecord` (spike outcome tracking with reversion/continuation + fade/trend eligibility flags), `MarketState` (per-market price history + peak z-score), `ActivityTracker` (z-score pipeline + dual FADE/TREND composite scoring), `WSStream` (WebSocket BBO streaming → tracker callback)
 
