@@ -426,7 +426,6 @@ class MarketLossTracker:
             return self._losses.get(slug, 0)
 
 market_loss_tracker = MarketLossTracker()
-signal_tracker = SignalTracker()
 
 # =========================
 # Position
@@ -1521,6 +1520,8 @@ class SignalTracker:
                 self._history[slug].popleft()
             if not self._history[slug]:
                 del self._history[slug]
+
+signal_tracker = SignalTracker()
 
 def extract_signal_direction(row: Dict[str, str]) -> Optional[str]:
     """Extract SPIKE/DIP direction from raw CSV row (works for both trigger and outlier format)."""
