@@ -105,12 +105,12 @@ LIVE = os.getenv("LIVE", "false").lower() == "true"
 PAPER = not LIVE
 
 # Risk / exits
-TP_PCT = 0.06
-SL_PCT = 0.06
-TIME_EXIT_SEC_PRIMARY = 1200
-BREAKEVEN_EXIT_SEC = 600
+TP_PCT = 0.10
+SL_PCT = 0.04
+TIME_EXIT_SEC_PRIMARY = 720
+BREAKEVEN_EXIT_SEC = 360
 BREAKEVEN_TOLERANCE = 0.010
-TRAILING_ACTIVATE_PCT = 0.045
+TRAILING_ACTIVATE_PCT = 0.04
 TRAILING_STOP_PCT = 0.025
 
 # Opening filters
@@ -127,7 +127,7 @@ MIN_OPEN_INTERVAL_SEC = 30
 MAX_SIGNAL_AGE_SEC = 15
 
 # Quality filters
-MIN_MID_PRICE = 0.20
+MIN_MID_PRICE = 0.25
 MAX_MID_PRICE = 0.55
 MAX_SPREAD_BASE = 0.10
 MAX_SPREAD_MID = 0.13
@@ -1153,8 +1153,9 @@ class LiveBroker:
         # Compare actual vs ideal cost on the same side
         ideal_cost = mid if self._is_long_yes(side) else (1.0 - mid)
         entry_slippage = abs(cost_per_share - ideal_cost) / max(ideal_cost, 1e-9)
-        if entry_slippage > TP_PCT / 2.0:
-            logger.info(f"[SKIP] {tid} entry slippage {entry_slippage:.1%} > {TP_PCT/2:.1%} (half TP), spread too wide")
+        max_entry_slip = min(TP_PCT / 2.0, 0.03)  # Cap at 3% regardless of TP
+        if entry_slippage > max_entry_slip:
+            logger.info(f"[SKIP] {tid} entry slippage {entry_slippage:.1%} > {max_entry_slip:.1%}, spread too wide")
             return None
         qty = cash_to_use / max(cost_per_share, 1e-9)
         estimated_notional = qty * cost_per_share

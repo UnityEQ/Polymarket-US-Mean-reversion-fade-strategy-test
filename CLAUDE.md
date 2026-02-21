@@ -30,7 +30,7 @@ Tails the CSV files written by monitor.py and executes trades (paper or live). I
 - **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase)
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel) for FADE strategy; close fallback also IOC
-- **Exit priority**: TP (6%) → SL (6%) → Trailing Stop (activate 4.5%, trail 2.5%, peak decays 25%/60s) → Breakeven (10min, 1% tolerance) → Time Exit (20min). **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
+- **Exit priority**: TP (10%) → SL (4%) → Trailing Stop (activate 4%, trail 2.5%, peak decays 25%/60s) → Breakeven (6min, 1% tolerance) → Time Exit (12min). **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
 - **Output**: Writes to `poly_us_trades_YYYY-MM-DD.csv`
 
 ### `scanner.py` — Activity Scanner
@@ -98,7 +98,7 @@ pip install websocket-client requests cryptography psutil
 
 **monitor.py**: `BASE_SPIKE_THRESHOLD=0.003`, `BASE_Z_SCORE_MIN=0.8`, `WATCH_Z=1.5`, `ALERT_Z=3.0`, `MAX_SPREAD_PCT=0.15`, `MID_MIN=0.12`, `MID_MAX=0.55`, `HISTORY_LEN=50`, `V24_MIN=10`, `SHARES_ACTIVITY_MIN=50`, `COOLDOWN_PER_SLUG=60`, `VOLUME_REFRESH_SEC=60`, `MARKET_REFRESH_SEC=300`
 
-**trade.py**: `Z_OPEN=3.5`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.06`, `SL_PCT=0.06`, `MAX_CONCURRENT_POS=2`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_MID_PRICE=0.20`, `MAX_MID_PRICE=0.55`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py**: `Z_OPEN=3.5`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.10`, `SL_PCT=0.04`, `MAX_CONCURRENT_POS=2`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.55`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
