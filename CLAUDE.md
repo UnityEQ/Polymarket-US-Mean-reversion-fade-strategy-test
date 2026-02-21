@@ -32,18 +32,18 @@ Tails the CSV files written by monitor.py and executes trades (paper or live). I
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel); close fallback also IOC
 - **FADE exit priority**: TP (10%) → SL (4%) → Trailing Stop (activate 4%, trail 2.5%, peak decays 25%/60s) → Breakeven (8min, 1.5% tolerance) → Time Exit (12min)
-- **TREND exit priority**: TP (12%) → SL (5%) → Trailing Stop (activate 3.5%, trail 2%) → Breakeven (4min, 1% tolerance) → Time Exit (8min)
+- **TREND exit priority**: TP (12%) → SL (5%) → Trailing Stop (activate 2.5%, trail 2%) → Breakeven (4min, 1% tolerance) → Time Exit (8min)
 - **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
 - **Output**: Writes to `poly_us_trades_YYYY-MM-DD.csv` (includes `strategy` column)
 
 ### `scanner.py` — Activity Scanner
-Standalone pre-flight tool. Runs its own mini z-score pipeline on WebSocket BBO data and scores market conditions for FADE profitability — not just signal presence but whether spikes actually revert. Beeps (`winsound.Beep`) when conditions support FADE strategy. No CSV output, no trading.
+Standalone pre-flight tool. Runs its own mini z-score pipeline on WebSocket BBO data and scores market conditions for both FADE and TREND profitability. Tracks reversion rate (spikes reverting = good for FADE) and continuation rate (spikes NOT reverting = good for TREND). Beeps (`winsound.Beep`) when either strategy's conditions are met. No CSV output, no trading.
 
-- **ActivityTracker**: Per-market `MarketState` with price history (deque of 50), computes z-scores on every BBO update. Tracks 4 weighted metrics: FADE-ready spikes (z 3.5-6.0 + spread < 4%, 35%), reversion rate (30%), volatile markets (z >= 1.5, 15%), tight-spread markets (< 4%, 20%).
-- **SpikeRecord**: Tracks every FADE-eligible spike. After 3 minutes, checks if price reverted >50% toward pre-spike mean. Maintains rolling 10-min window of checked spikes.
+- **ActivityTracker**: Per-market `MarketState` with price history (deque of 50), computes z-scores on every BBO update. Computes separate FADE and TREND composite scores. FADE: 4 weighted metrics (fade-ready 35%, reversion 30%, volatile 15%, tight-spread 20%). TREND: 4 weighted metrics (trend-ready 35%, continuation 30%, volatile 15%, trend-tight 20%).
+- **SpikeRecord**: Tracks every eligible spike with `fade_eligible` and `trend_eligible` flags. After 3 minutes, checks if price reverted (>50% = FADE good) or continued (<20% reversion = TREND good). Maintains rolling 10-min window.
 - **WSStream**: Same WebSocket + BBO parsing as monitor.py (MARKET_DATA_LITE, wildcard subscribe with batched fallback)
-- **Game phase tracking**: `MARKET_META` dict stores timing fields per slug from discovery. `classify_game_phase()` (same logic as monitor.py) classifies FADE-ready markets by phase. If all FADE-ready markets are `PRE_GAME`, composite score gets 0.3x penalty.
-- **Alert**: Beeps when composite score >= 65 AND fade_ready >= 1 AND at least 3 checked spikes AND reversion rate >= 30%. Pre-game-only periods penalized via 0.3x multiplier.
+- **Game phase tracking**: `MARKET_META` dict stores timing fields per slug from discovery. `classify_game_phase()` (same logic as monitor.py) classifies strategy-ready markets by phase. If all strategy-ready markets are `PRE_GAME`, that strategy's composite gets 0.3x penalty.
+- **Alert**: Beeps when either FADE or TREND score >= 65 with sufficient data (3+ checked spikes, reversion >= 30% for FADE or continuation >= 40% for TREND).
 - **Output**: Console + `scanner-console-log.txt` (truncated each run via `tee_print()`)
 
 ### Data Flow
@@ -103,17 +103,17 @@ pip install websocket-client requests cryptography psutil
 
 **trade.py (FADE)**: `Z_OPEN=3.5`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.10`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=480`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.04`, `TRAILING_STOP_PCT=0.025`
 
-**trade.py (TREND)**: `ENABLE_TREND=True`, `TREND_Z_OPEN=3.5`, `TREND_Z_OPEN_OUTLIER=4.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_BREAKEVEN_EXIT_SEC=240`, `TREND_BREAKEVEN_TOLERANCE=0.01`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.035`, `TREND_TRAILING_STOP_PCT=0.02`
+**trade.py (TREND)**: `ENABLE_TREND=True`, `TREND_Z_OPEN=3.5`, `TREND_Z_OPEN_OUTLIER=4.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_BREAKEVEN_EXIT_SEC=240`, `TREND_BREAKEVEN_TOLERANCE=0.01`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=2`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.55`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Strategy selection: live games (`UNKNOWN` phase) prefer TREND, others prefer FADE. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=2`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.45`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-0.30`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. Strategy selection: live games (`UNKNOWN` phase) prefer TREND, others prefer FADE. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
 **monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing)
 
-**trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
+**trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection + book spread guard), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`, `circuit_breaker`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
 
-**scanner.py**: `RestClient` (minimal REST for market discovery), `SpikeRecord` (spike outcome tracking with reversion check), `MarketState` (per-market price history + peak z-score), `ActivityTracker` (z-score pipeline + composite scoring), `WSStream` (WebSocket BBO streaming → tracker callback)
+**scanner.py**: `RestClient` (minimal REST for market discovery), `SpikeRecord` (spike outcome tracking with reversion/continuation + fade/trend eligibility flags), `MarketState` (per-market price history + peak z-score), `ActivityTracker` (z-score pipeline + dual FADE/TREND composite scoring), `WSStream` (WebSocket BBO streaming → tracker callback)
 
 ## Critical API Patterns (Polymarket US)
 
@@ -196,9 +196,13 @@ Observations gathered from live runs and log analysis. Use these to identify pat
 - **OI=91 too thin for fills** (2026-02-07): SAC vs NO order placed IOC at mid=0.3645 (in the sweet spot), z=3.77, but no counterparty existed. Spread looked tight (3.9%) from WS but zero depth behind it. Even a $1 order couldn't fill. MIN_VOLUME=10 let this through — likely need MIN_VOLUME >= 200+ for reliable fills.
 
 ### Strategy Implications
-- **FADE sweet spot appears to be mid 0.20-0.45** (strengthened 2026-02-08): UCF at mid=0.4325 hit TP in 4 min (+$0.089). Maryland at mid=0.2095 time-exited with small loss. Detroit at mid=0.588 (near ceiling) lost more. Mid-range underdogs (0.30-0.45) showing best results so far.
+- **FADE sweet spot appears to be mid 0.25-0.45** (strengthened 2026-02-21): `[ACTED]` MAX_MID_PRICE lowered from 0.55 to 0.45. mspst-sc at mid=0.50 hit SL (-$0.073). Feb 20: 7/9 FADE trades hit breakeven — near-50/50 markets are a coinflip, fee drag kills the edge.
 - **Consider sport-specific filters** (hypothesis): NFL has deep liquidity but favorites are heavily skewed. CBB underdogs (low mid) might be the best FADE candidates if OI is sufficient. NBA TBD — tomorrow's 9-game slate (2026-02-08) will provide first real NBA data.
 - **Live CBB game events = adverse selection for FADE** (2026-02-08): NCG-Furman entry at mid=0.4265 (in the sweet spot) with z=3.8, clean fill on 5,282 shares. But the spike was real info — game event pushed YES from 0.447 → 0.488+ in one tick, SL loss 15.3% (2.5x target). FADE assumes mean-reversion, but live game events ARE the new mean. The signal quality filters (z, delta, spread) can't distinguish noise from real game momentum.
+- **TREND gap risk is severe — actual SL losses 3-6x target** (2026-02-21): 3 TREND SL exits had actual losses of 17.5%, 29.3%, 16.7% vs 5% target. Price gaps through the stop on live game events. 5-second polling can't catch intra-tick jumps. `[ACTED]` Added raw book spread guard (`MAX_BOOK_SPREAD_PCT=15%`) — would have blocked trade #1 (22% spread). Also added daily loss circuit breaker (`DAILY_LOSS_LIMIT=-$0.30`).
+- **TREND trailing stop is the best exit for momentum** (2026-02-21): Both trailing stop exits were wins (+$0.049, +$0.031), peaking at 10% and 7.6%. `[ACTED]` Lowered `TREND_TRAILING_ACTIVATE_PCT` from 3.5% to 2.5% to capture partial profits sooner before game events reverse.
+- **FADE breakeven exits dominate during flat pre-game/early-game** (2026-02-21): Feb 20 session: 7/9 trades hit breakeven with avg -$0.015 fee drag each. Markets simply don't move enough for FADE — price sits flat then exits at a loss from round-trip fees.
+- **TREND 3W/3L is better hit rate than FADE 1W/8L but worse risk/reward** (2026-02-21): TREND avg win $0.083 vs avg loss $0.142. Still underwater on risk/reward due to gap losses. Need the trailing stop activation to capture more partial wins.
 
 ### MIN_VOLUME Tuning Log
 Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volume_log.md). Key findings (as of 2026-02-10):
@@ -207,7 +211,7 @@ Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volum
 - **NFL OI (620K+) >> CBB (28-15.6K) >> NBA (9-959)**. May need sport-specific thresholds.
 - **Avg SL loss (12.6%) is 1.8x avg TP win (7.0%)** due to live game-event gap risk. Inherent to sports — no code fix.
 - **Pre-game markets (all sports) consistently untradeable** — wide real spreads, flat prices, breakeven exits at a loss.
-- **Cumulative live stats: 2W/9L, -$0.22**. Only reliable wins in CBB mid-range (0.35-0.55) with sufficient OI.
+- **Cumulative live stats: 6W/17L, -$0.57** (through 2026-02-21). Feb 20 FADE: 1W/8L -$0.17. Feb 21 TREND: 3W/3L -$0.18 (+ 1 open). All wins in CBB mid 0.25-0.45. Gap risk on SL is the primary P&L destroyer.
 
 ## Agent Instructions
 

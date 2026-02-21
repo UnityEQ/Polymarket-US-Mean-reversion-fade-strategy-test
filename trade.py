@@ -128,7 +128,7 @@ MAX_SIGNAL_AGE_SEC = 15
 
 # Quality filters
 MIN_MID_PRICE = 0.25
-MAX_MID_PRICE = 0.55
+MAX_MID_PRICE = 0.45
 MAX_SPREAD_BASE = 0.10
 MAX_SPREAD_MID = 0.13
 MAX_SPREAD_HIGH = 0.16
@@ -141,6 +141,13 @@ SELL_BIAS = False
 BLOCK_PRE_GAME = True         # Block all pre-game entries (consistent losers)
 ALLOW_UNKNOWN_PHASE = True    # Allow entries when phase can't be determined
 
+# Book spread rejection: raw (ask-bid)/mid — catches wide books even when slippage guard passes
+MAX_BOOK_SPREAD_PCT = 0.15    # 15% raw book spread — loymd-colg was 22% and gapped through SL
+
+# Daily loss circuit breaker: stop trading after cumulative PnL drops below threshold
+DAILY_LOSS_LIMIT = -0.30      # Pause after -$0.30 realized PnL in a session
+CIRCUIT_BREAKER_ENABLED = True
+
 # TREND strategy (momentum following) — trades WITH directional moves during live games
 ENABLE_TREND = True
 TREND_TP_PCT = 0.12           # Wider — let momentum run
@@ -148,7 +155,7 @@ TREND_SL_PCT = 0.05           # Moderate — room for brief pullbacks
 TREND_TIME_EXIT_SEC = 480     # 8 min — momentum fades fast
 TREND_BREAKEVEN_EXIT_SEC = 240  # 4 min
 TREND_BREAKEVEN_TOLERANCE = 0.01
-TREND_TRAILING_ACTIVATE_PCT = 0.035
+TREND_TRAILING_ACTIVATE_PCT = 0.025
 TREND_TRAILING_STOP_PCT = 0.02
 TREND_Z_OPEN = 3.5
 TREND_Z_OPEN_OUTLIER = 4.5
@@ -1194,6 +1201,12 @@ class LiveBroker:
         if entry_slippage > max_entry_slip:
             logger.info(f"[SKIP] {tid} entry slippage {entry_slippage:.1%} > {max_entry_slip:.1%}, spread too wide")
             return None
+        # Raw book spread check — catches wide books that slippage guard misses
+        if bbo_bid > 0 and bbo_ask > 0 and mid > 0:
+            raw_spread = (bbo_ask - bbo_bid) / mid
+            if raw_spread > MAX_BOOK_SPREAD_PCT:
+                logger.info(f"[SKIP] {tid} book spread {raw_spread:.1%} > {MAX_BOOK_SPREAD_PCT:.0%}, too wide (bid={bbo_bid:.3f} ask={bbo_ask:.3f})")
+                return None
         qty = cash_to_use / max(cost_per_share, 1e-9)
         estimated_notional = qty * cost_per_share
         estimated_fee = self.fee_for_notional(estimated_notional)
@@ -1446,6 +1459,7 @@ class SkipCounters:
     signal_stale: int = 0
     open_cooldown: int = 0
     game_phase_blocked: int = 0
+    circuit_breaker: int = 0
     signals_processed: int = 0
     def clear(self):
         for k in self.__dict__:
@@ -1655,7 +1669,7 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v15.0 - POLYMARKET US API (FADE + TREND STRATEGIES)")
+    print(f"TRADE BOT v15.1 - POLYMARKET US API (FADE + TREND STRATEGIES)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
     print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
@@ -1664,6 +1678,7 @@ def main():
     print(f"TREND Trail: activate={TREND_TRAILING_ACTIVATE_PCT*100:.1f}% trail={TREND_TRAILING_STOP_PCT*100:.1f}%")
     print(f"Z threshold: FADE >= {Z_OPEN} / TREND >= {TREND_Z_OPEN}")
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
+    print(f"Book spread max: {MAX_BOOK_SPREAD_PCT*100:.0f}%  Daily loss limit: ${DAILY_LOSS_LIMIT:.2f} (breaker={CIRCUIT_BREAKER_ENABLED})")
     print(f"Max concurrent: {MAX_CONCURRENT_POS}  TREND during live games: {ENABLE_TREND}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
@@ -1815,6 +1830,9 @@ def main():
                         if not ALLOW_UNKNOWN_PHASE and game_phase == "UNKNOWN":
                             skips.game_phase_blocked += 1
                             continue
+                        if CIRCUIT_BREAKER_ENABLED and broker.realized_pnl <= DAILY_LOSS_LIMIT:
+                            skips.circuit_breaker += 1
+                            continue
                         if broker.is_blocked(tid):
                             if market_loss_tracker.is_blocked(tid):
                                 skips.market_loss_limit += 1
@@ -1866,7 +1884,8 @@ def main():
             if t - last_status >= STATUS_EVERY_SEC:
                 s = broker.get_status_dict()
                 mem = f" RAM {get_memory_mb():.0f}MB" if HAS_PSUTIL else ""
-                print(f"[STATUS] pos={s['open']} eq=${s['equity']:.2f} pnl=${s['realized_pnl']:.4f} W:{s['wins']}/L:{s['losses']} ({s['win_rate']:.0f}%) TP:{s['tp']} SL:{s['sl']} T:{s['time']} BE:{s['be']} TR:{s['trail']}{mem}")
+                cb = " CIRCUIT_BREAKER" if (CIRCUIT_BREAKER_ENABLED and s['realized_pnl'] <= DAILY_LOSS_LIMIT) else ""
+                print(f"[STATUS] pos={s['open']} eq=${s['equity']:.2f} pnl=${s['realized_pnl']:.4f} W:{s['wins']}/L:{s['losses']} ({s['win_rate']:.0f}%) TP:{s['tp']} SL:{s['sl']} T:{s['time']} BE:{s['be']} TR:{s['trail']}{cb}{mem}")
                 last_status = t
 
             if t - last_summary >= SUMMARY_EVERY_SEC and skips.has_any():
