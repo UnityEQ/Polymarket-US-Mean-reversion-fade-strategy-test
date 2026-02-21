@@ -145,7 +145,7 @@ ALLOW_UNKNOWN_PHASE = True    # Allow entries when phase can't be determined
 MAX_BOOK_SPREAD_PCT = 0.15    # 15% raw book spread — loymd-colg was 22% and gapped through SL
 
 # Daily loss circuit breaker: stop trading after cumulative PnL drops below threshold
-DAILY_LOSS_LIMIT = -0.30      # Pause after -$0.30 realized PnL in a session
+DAILY_LOSS_LIMIT = -3.00      # Pause after -$3.00 realized PnL in a session
 CIRCUIT_BREAKER_ENABLED = True
 
 # TREND strategy (momentum following) — trades WITH directional moves during live games
