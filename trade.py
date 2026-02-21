@@ -776,7 +776,7 @@ class LiveBroker:
         if not HAS_ED25519:
             raise ImportError("pip install cryptography")
         self.auth = PolymarketUSAuth(PM_US_API_KEY_ID, PM_US_API_SECRET)
-        logger.info(f"[LIVE] Polymarket US API initialized (key: {PM_US_API_KEY_ID[:8]}...)")
+        logger.info("[LIVE] Polymarket US API initialized")
         self.cash = self._get_account_balance()
         self.starting_cash = self.cash
         logger.info(f"[LIVE] Balance: ${self.cash:.2f}")
