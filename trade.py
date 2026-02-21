@@ -149,7 +149,7 @@ DAILY_LOSS_LIMIT = -3.00      # Pause after -$3.00 realized PnL in a session
 CIRCUIT_BREAKER_ENABLED = True
 
 # TREND strategy (momentum following) — trades WITH directional moves during live games
-ENABLE_TREND = True
+ENABLE_TREND = True   # Primary strategy — thin markets lack participants to revert, follow momentum
 TREND_TP_PCT = 0.12           # Wider — let momentum run
 TREND_SL_PCT = 0.05           # Moderate — room for brief pullbacks
 TREND_TIME_EXIT_SEC = 480     # 8 min — momentum fades fast
@@ -1669,7 +1669,7 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v15.1 - POLYMARKET US API (FADE + TREND STRATEGIES)")
+    print(f"TRADE BOT v15.2 - POLYMARKET US API (TREND-FIRST STRATEGY)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
     print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
@@ -1679,7 +1679,7 @@ def main():
     print(f"Z threshold: FADE >= {Z_OPEN} / TREND >= {TREND_Z_OPEN}")
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
     print(f"Book spread max: {MAX_BOOK_SPREAD_PCT*100:.0f}%  Daily loss limit: ${DAILY_LOSS_LIMIT:.2f} (breaker={CIRCUIT_BREAKER_ENABLED})")
-    print(f"Max concurrent: {MAX_CONCURRENT_POS}  TREND during live games: {ENABLE_TREND}")
+    print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy order: {'TREND→FADE' if ENABLE_TREND else 'FADE only'}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
 
@@ -1800,9 +1800,8 @@ def main():
 
                         game_phase = (r.get("game_phase") or "").strip().upper()
 
-                        # Strategy selection: TREND for live games, FADE otherwise
-                        if ENABLE_TREND and game_phase == "UNKNOWN":
-                            # Live game — prefer TREND (follow momentum)
+                        # Strategy selection: TREND first (thin markets lack participants to revert), FADE fallback
+                        if ENABLE_TREND:
                             sig = row_to_trend_from_triggers(r) if src == "TRIG" else row_to_trend_from_outliers(r)
                             strategy = "TREND"
                             z_min = TREND_Z_OPEN
@@ -1812,14 +1811,9 @@ def main():
                                 strategy = "FADE"
                                 z_min = Z_OPEN
                         else:
-                            # Non-live — FADE first, TREND fallback
                             sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
                             strategy = "FADE"
                             z_min = Z_OPEN
-                            if not sig and ENABLE_TREND:
-                                sig = row_to_trend_from_triggers(r) if src == "TRIG" else row_to_trend_from_outliers(r)
-                                strategy = "TREND"
-                                z_min = TREND_Z_OPEN
 
                         if not sig:
                             continue
