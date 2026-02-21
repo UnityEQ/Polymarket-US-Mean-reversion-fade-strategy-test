@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trade.py - v14.6 - POLYMARKET US API - IOC ENTRIES + PORTFOLIO FIX
+trade.py - v15.0 - POLYMARKET US API - FADE + TREND STRATEGIES
 CHANGES FROM v14.5:
   - Entry orders now use IOC (Immediate-Or-Cancel) instead of GTC. GTC
     orders were sitting unfilled on the book because limit prices didn't
@@ -108,8 +108,8 @@ PAPER = not LIVE
 TP_PCT = 0.10
 SL_PCT = 0.04
 TIME_EXIT_SEC_PRIMARY = 720
-BREAKEVEN_EXIT_SEC = 360
-BREAKEVEN_TOLERANCE = 0.010
+BREAKEVEN_EXIT_SEC = 480
+BREAKEVEN_TOLERANCE = 0.015
 TRAILING_ACTIVATE_PCT = 0.04
 TRAILING_STOP_PCT = 0.025
 
@@ -140,6 +140,18 @@ ENABLE_TRAILING_STOP = True
 SELL_BIAS = False
 BLOCK_PRE_GAME = True         # Block all pre-game entries (consistent losers)
 ALLOW_UNKNOWN_PHASE = True    # Allow entries when phase can't be determined
+
+# TREND strategy (momentum following) — trades WITH directional moves during live games
+ENABLE_TREND = True
+TREND_TP_PCT = 0.12           # Wider — let momentum run
+TREND_SL_PCT = 0.05           # Moderate — room for brief pullbacks
+TREND_TIME_EXIT_SEC = 480     # 8 min — momentum fades fast
+TREND_BREAKEVEN_EXIT_SEC = 240  # 4 min
+TREND_BREAKEVEN_TOLERANCE = 0.01
+TREND_TRAILING_ACTIVATE_PCT = 0.035
+TREND_TRAILING_STOP_PCT = 0.02
+TREND_Z_OPEN = 3.5
+TREND_Z_OPEN_OUTLIER = 4.5
 
 MARKET_BLOCKLIST = {
     "106290179211046540747289269936667551104628138202727334337396394027502415762364",
@@ -313,7 +325,7 @@ def load_latest_mids(path: str) -> dict:
 # Trades CSV
 # =========================
 
-TRADE_FIELDS = ["ts", "event", "slug", "side", "qty", "entry_mid", "exit_mid", "pnl", "cash_after", "reason", "fee", "z_score"]
+TRADE_FIELDS = ["ts", "event", "slug", "side", "qty", "entry_mid", "exit_mid", "pnl", "cash_after", "reason", "fee", "z_score", "strategy"]
 
 _trades_header_written = False
 
@@ -423,6 +435,7 @@ class Position:
     trailing_active: bool = False
     peak_last_updated: float = 0.0
     consecutive_profit_mids: int = 0
+    strategy: str = "FADE"
 
     @property
     def slug(self) -> str:
@@ -440,47 +453,68 @@ def _calc_profit_pct(side: str, entry: float, current: float) -> float:
     # BUY_NO/BUY_SHORT: profit is on the NO side, so measure relative to NO cost (1-entry)
     return (entry - current) / (1.0 - entry)
 
-def hit_take_profit(side: str, entry: float, current: float) -> bool:
-    return _calc_profit_pct(side, entry, current) >= TP_PCT
+def hit_take_profit(side: str, entry: float, current: float, threshold: float = TP_PCT) -> bool:
+    return _calc_profit_pct(side, entry, current) >= threshold
 
-def hit_stop_loss(side: str, entry: float, current: float) -> bool:
-    return _calc_profit_pct(side, entry, current) <= -SL_PCT
+def hit_stop_loss(side: str, entry: float, current: float, threshold: float = SL_PCT) -> bool:
+    return _calc_profit_pct(side, entry, current) <= -threshold
 
-def hit_breakeven_exit(side: str, entry: float, current: float, age_sec: float) -> bool:
-    if age_sec < BREAKEVEN_EXIT_SEC:
+def hit_breakeven_exit(side: str, entry: float, current: float, age_sec: float,
+                       be_sec: float = BREAKEVEN_EXIT_SEC, tolerance: float = BREAKEVEN_TOLERANCE) -> bool:
+    if age_sec < be_sec:
         return False
-    return abs(_calc_profit_pct(side, entry, current)) < BREAKEVEN_TOLERANCE
+    return abs(_calc_profit_pct(side, entry, current)) < tolerance
 
 TRAILING_PEAK_DECAY_SEC = 60.0
 TRAILING_PEAK_DECAY_RATE = 0.25
 TRAILING_MIN_CONSECUTIVE = 2
 
-def check_trailing_stop(pos: Position, current: float, is_stale: bool = False) -> Tuple[bool, float]:
+def check_trailing_stop(pos: Position, current: float, is_stale: bool = False,
+                        activate_pct: float = TRAILING_ACTIVATE_PCT,
+                        stop_pct: float = TRAILING_STOP_PCT) -> Tuple[bool, float]:
     if not ENABLE_TRAILING_STOP:
         return False, pos.peak_profit_pct
-    
+
     profit_pct = _calc_profit_pct(pos.side, pos.entry_mid, current)
     current_time = time.time()
     new_peak = pos.peak_profit_pct
-    
+
     if pos.peak_last_updated > 0 and (current_time - pos.peak_last_updated) > TRAILING_PEAK_DECAY_SEC:
         new_peak = new_peak * (1.0 - TRAILING_PEAK_DECAY_RATE)
         pos.peak_last_updated = current_time
-    
+
     if not is_stale and profit_pct > new_peak:
         new_peak = profit_pct
         pos.peak_last_updated = current_time
-    
-    if not is_stale and profit_pct >= TRAILING_ACTIVATE_PCT:
+
+    if not is_stale and profit_pct >= activate_pct:
         pos.consecutive_profit_mids += 1
     elif not is_stale:
         pos.consecutive_profit_mids = 0
-    
-    if new_peak >= TRAILING_ACTIVATE_PCT and pos.consecutive_profit_mids >= TRAILING_MIN_CONSECUTIVE:
-        if profit_pct <= new_peak - TRAILING_STOP_PCT:
+
+    if new_peak >= activate_pct and pos.consecutive_profit_mids >= TRAILING_MIN_CONSECUTIVE:
+        if profit_pct <= new_peak - stop_pct:
             return True, new_peak
-    
+
     return False, new_peak
+
+def get_exit_params(strategy: str) -> dict:
+    """Return exit thresholds for the given strategy."""
+    if strategy == "TREND":
+        return {
+            "tp": TREND_TP_PCT, "sl": TREND_SL_PCT,
+            "time": TREND_TIME_EXIT_SEC, "be_sec": TREND_BREAKEVEN_EXIT_SEC,
+            "be_tol": TREND_BREAKEVEN_TOLERANCE,
+            "trail_activate": TREND_TRAILING_ACTIVATE_PCT,
+            "trail_stop": TREND_TRAILING_STOP_PCT,
+        }
+    return {
+        "tp": TP_PCT, "sl": SL_PCT,
+        "time": TIME_EXIT_SEC_PRIMARY, "be_sec": BREAKEVEN_EXIT_SEC,
+        "be_tol": BREAKEVEN_TOLERANCE,
+        "trail_activate": TRAILING_ACTIVATE_PCT,
+        "trail_stop": TRAILING_STOP_PCT,
+    }
 
 # =========================
 # PaperBroker
@@ -539,17 +573,18 @@ class PaperBroker:
     def is_blocked(self, tid: str) -> bool:
         return tid in MARKET_BLOCKLIST or market_loss_tracker.is_blocked(tid)
 
-    def should_open(self, mid: float, z_score: float) -> Tuple[bool, str]:
+    def should_open(self, mid: float, z_score: float, z_min: float = Z_OPEN) -> Tuple[bool, str]:
         if mid < MIN_MID_PRICE or mid > MAX_MID_PRICE:
             return False, "price_range"
-        if z_score < Z_OPEN:
+        if z_score < z_min:
             return False, "z_too_low"
         return True, "ok"
 
-    def open(self, tid: str, side: str, mid: float, z_score: float = 0.0) -> Optional[Position]:
+    def open(self, tid: str, side: str, mid: float, z_score: float = 0.0, strategy: str = "FADE") -> Optional[Position]:
         if tid in self.positions or self.is_blocked(tid):
             return None
-        allowed, _ = self.should_open(mid, z_score)
+        z_min = TREND_Z_OPEN if strategy == "TREND" else Z_OPEN
+        allowed, _ = self.should_open(mid, z_score, z_min=z_min)
         if not allowed:
             return None
         cash_to_use = self.sized_cash()
@@ -563,9 +598,9 @@ class PaperBroker:
             return None
         self.cash -= total_cost
         pos = Position(
-            tid=tid, side=side, qty=qty, entry_mid=mid, 
+            tid=tid, side=side, qty=qty, entry_mid=mid,
             entry_ts=now(), fee_open=fee_open, cost_basis=total_cost,
-            fill_price=mid, z_score=z_score
+            fill_price=mid, z_score=z_score, strategy=strategy
         )
         self.positions[tid] = pos
         self._trade_count += 1
@@ -573,7 +608,8 @@ class PaperBroker:
             "ts": utc_ts(), "event": "OPEN", "slug": tid, "side": side,
             "qty": f"{qty:.4f}", "entry_mid": f"{mid:.6f}", "exit_mid": "",
             "pnl": "", "cash_after": f"{self.cash:.2f}",
-            "reason": "", "fee": f"{fee_open:.4f}", "z_score": f"{z_score:.2f}"
+            "reason": "", "fee": f"{fee_open:.4f}", "z_score": f"{z_score:.2f}",
+            "strategy": strategy
         })
         return pos
 
@@ -646,7 +682,7 @@ class PaperBroker:
             "exit_mid": f"{exit_mid:.6f}", "pnl": f"{pnl_after_fee:.4f}",
             "cash_after": f"{self.cash:.2f}",
             "reason": reason, "fee": f"{(pos.fee_open + fee_close):.4f}",
-            "z_score": f"{pos.z_score:.2f}"
+            "z_score": f"{pos.z_score:.2f}", "strategy": pos.strategy
         })
         return pos, pnl_after_fee
 
@@ -870,10 +906,10 @@ class LiveBroker:
     def is_blocked(self, tid: str) -> bool:
         return tid in MARKET_BLOCKLIST or market_loss_tracker.is_blocked(tid)
 
-    def should_open(self, mid: float, z_score: float) -> Tuple[bool, str]:
+    def should_open(self, mid: float, z_score: float, z_min: float = Z_OPEN) -> Tuple[bool, str]:
         if mid < MIN_MID_PRICE or mid > MAX_MID_PRICE:
             return False, "price_range"
-        if z_score < Z_OPEN:
+        if z_score < z_min:
             return False, "z_too_low"
         return True, "ok"
 
@@ -1119,10 +1155,11 @@ class LiveBroker:
     def _is_long_yes(self, side: str) -> bool:
         return side in ("BUY", "BUY_LONG")
 
-    def open(self, tid: str, side: str, mid: float, z_score: float = 0.0) -> Optional[Position]:
+    def open(self, tid: str, side: str, mid: float, z_score: float = 0.0, strategy: str = "FADE") -> Optional[Position]:
         if tid in self.positions or self.is_blocked(tid):
             return None
-        allowed, _ = self.should_open(mid, z_score)
+        z_min = TREND_Z_OPEN if strategy == "TREND" else Z_OPEN
+        allowed, _ = self.should_open(mid, z_score, z_min=z_min)
         if not allowed:
             return None
         cash_to_use = self.sized_cash()
@@ -1198,7 +1235,8 @@ class LiveBroker:
         pos = Position(
             tid=tid, side=side, qty=qty, entry_mid=mid,
             entry_ts=now(), fee_open=actual_fee, cost_basis=actual_total_cost,
-            order_id=order_id, fill_price=actual_fill_price, z_score=z_score
+            order_id=order_id, fill_price=actual_fill_price, z_score=z_score,
+            strategy=strategy
         )
         self.positions[tid] = pos
         self._trade_count += 1
@@ -1206,10 +1244,11 @@ class LiveBroker:
             "ts": utc_ts(), "event": "OPEN", "slug": tid, "side": side,
             "qty": f"{qty:.4f}", "entry_mid": f"{mid:.6f}", "exit_mid": "",
             "pnl": "", "cash_after": f"{self.cash:.2f}",
-            "reason": "", "fee": f"{actual_fee:.4f}", "z_score": f"{z_score:.2f}"
+            "reason": "", "fee": f"{actual_fee:.4f}", "z_score": f"{z_score:.2f}",
+            "strategy": strategy
         })
         self.sync_balance(force=True)
-        logger.info(f"[OPEN] {side} on {tid} at {actual_fill_price:.4f} (order {order_id[:12]}...)")
+        logger.info(f"[OPEN] {strategy} {side} on {tid} at {actual_fill_price:.4f} (order {order_id[:12]}...)")
         return pos
 
     def _attempt_close(self, pos: Position, exit_mid: float) -> Tuple[bool, str, float]:
@@ -1312,7 +1351,7 @@ class LiveBroker:
             "exit_mid": f"{actual_exit_price:.6f}", "pnl": f"{pnl:.4f}",
             "cash_after": f"{self.cash:.2f}",
             "reason": reason, "fee": f"{(pos.fee_open + fee_close):.4f}",
-            "z_score": f"{pos.z_score:.2f}"
+            "z_score": f"{pos.z_score:.2f}", "strategy": pos.strategy
         })
         self.sync_balance(force=True)
         return pos, pnl
@@ -1486,6 +1525,85 @@ def row_to_signal_from_outliers(row: Dict[str, str]) -> Optional[Tuple[str, str,
     side = "BUY_NO" if (math.isfinite(z) and z > 0) else "BUY"
     return slug, side, mid, abs_z
 
+# ---------- TREND signal parsers (momentum following — enter WITH the move) ----------
+
+def row_to_trend_from_triggers(row: Dict[str, str]) -> Optional[Tuple[str, str, float, float]]:
+    """Parse TREND signal from triggers CSV — same quality gates but enters WITH the move."""
+    if not ENABLE_TREND:
+        return None
+    if to_upper(row.get("decision")) != "ACCEPT":
+        return None
+    # Accept both FADE and TREND hints — during live games we follow momentum regardless
+    hint = to_upper(row.get("hint_candidate"))
+    if hint not in ("FADE", "TREND"):
+        return None
+    slug = (row.get("market_slug") or row.get("tid") or "").strip()
+    if not slug:
+        return None
+    mid = to_float(row.get("mid"))
+    if not (0 < mid < 1):
+        return None
+    delta = to_float(row.get("delta"), 0.0)
+    delta_pct = abs(delta) / mid if mid > 0 else 0.0
+    if delta_pct < MIN_DELTA_PCT or delta_pct > MAX_DELTA_PCT:
+        return None
+    abs_z = abs(to_float(row.get("abs_z") or row.get("z"), 0.0))
+    spread = to_float(row.get("spread"), 0.0)
+    max_spread = MAX_SPREAD_HIGH if abs_z >= 5.0 else MAX_SPREAD_MID if abs_z >= 4.0 else MAX_SPREAD_BASE
+    if spread > max_spread:
+        return None
+    volume = to_float(row.get("volume"), 0.0)
+    if volume < MIN_VOLUME:
+        return None
+    # No regime filter for TREND — works in any regime
+    # TREND: enter WITH the move (opposite of FADE)
+    sig = to_upper(row.get("signal"))
+    if sig == "SPIKE":
+        side = "BUY"       # Price going up → buy YES (follow momentum)
+    elif sig == "DIP":
+        side = "BUY_NO"    # Price going down → buy NO (follow momentum)
+    else:
+        ds = to_float(row.get("direction_strength"))
+        if math.isfinite(ds) and ds != 0:
+            side = "BUY" if ds > 0 else "BUY_NO"
+        elif math.isfinite(delta) and delta != 0:
+            side = "BUY" if delta > 0 else "BUY_NO"
+        else:
+            return None  # TREND needs clear direction
+    return slug, side, mid, abs_z
+
+def row_to_trend_from_outliers(row: Dict[str, str]) -> Optional[Tuple[str, str, float, float]]:
+    """Parse TREND signal from outliers CSV — follows momentum on strong moves."""
+    if not ENABLE_TREND:
+        return None
+    hint = to_upper(row.get("trade_hint"))
+    if hint not in ("FADE", "TREND"):
+        return None
+    z = to_float(row.get("z"))
+    abs_z = abs(z) if math.isfinite(z) else to_float(row.get("abs_z"), 0.0)
+    if abs_z < TREND_Z_OPEN_OUTLIER:
+        return None
+    slug = (row.get("market_slug") or row.get("tid") or "").strip()
+    if not slug:
+        return None
+    mid = to_float(row.get("mid"))
+    if not (0 < mid < 1):
+        return None
+    delta = to_float(row.get("delta"), 0.0)
+    delta_pct = abs(delta) / mid if mid > 0 else 0.0
+    if delta_pct < MIN_DELTA_PCT or delta_pct > MAX_DELTA_PCT:
+        return None
+    spread = to_float(row.get("spread"), 0.0)
+    max_spread = MAX_SPREAD_HIGH if abs_z >= 5.0 else MAX_SPREAD_MID if abs_z >= 4.0 else MAX_SPREAD_BASE
+    if spread > max_spread:
+        return None
+    volume = to_float(row.get("volume"), 0.0)
+    if volume < MIN_VOLUME:
+        return None
+    # TREND: enter WITH the move (z > 0 means spike up → BUY YES)
+    side = "BUY" if (math.isfinite(z) and z > 0) else "BUY_NO"
+    return slug, side, mid, abs_z
+
 def extract_mid_from_row(row: Dict[str, str]) -> Optional[Tuple[str, float, float]]:
     slug = (row.get("market_slug") or row.get("tid") or "").strip()
     if not slug:
@@ -1537,15 +1655,16 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v14.6 - POLYMARKET US API (IOC ENTRIES + PORTFOLIO FIX)")
+    print(f"TRADE BOT v15.0 - POLYMARKET US API (FADE + TREND STRATEGIES)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
-    print(f"TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time Exit: {TIME_EXIT_SEC_PRIMARY}s")
-    print(f"Breakeven Exit: {BREAKEVEN_EXIT_SEC}s (tolerance: {BREAKEVEN_TOLERANCE*100:.1f}%)")
-    print(f"Trailing Stop: activate={TRAILING_ACTIVATE_PCT*100:.1f}% trail={TRAILING_STOP_PCT*100:.1f}%")
-    print(f"Z threshold: >= {Z_OPEN} (triggers) / >= {Z_OPEN_OUTLIER} (outliers)")
+    print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
+    print(f"TREND TP: {TREND_TP_PCT*100:.1f}%  SL: {TREND_SL_PCT*100:.1f}%  Time: {TREND_TIME_EXIT_SEC}s  BE: {TREND_BREAKEVEN_EXIT_SEC}s  (enabled={ENABLE_TREND})")
+    print(f"FADE  Trail: activate={TRAILING_ACTIVATE_PCT*100:.1f}% trail={TRAILING_STOP_PCT*100:.1f}%")
+    print(f"TREND Trail: activate={TREND_TRAILING_ACTIVATE_PCT*100:.1f}% trail={TREND_TRAILING_STOP_PCT*100:.1f}%")
+    print(f"Z threshold: FADE >= {Z_OPEN} / TREND >= {TREND_Z_OPEN}")
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
-    print(f"Max concurrent: {MAX_CONCURRENT_POS}  FADE only: {FADE_ONLY_TRIGGERS}")
+    print(f"Max concurrent: {MAX_CONCURRENT_POS}  TREND during live games: {ENABLE_TREND}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
 
@@ -1605,49 +1724,53 @@ def main():
                 is_stale = getattr(broker, '_is_stale_mid', lambda p, c: False)(pos, current)
                 # Use executable price (bid/ask) for profit-taking to avoid TP on inflated mid
                 exec_price = broker.get_executable_exit_price(pos)
+                ep = get_exit_params(pos.strategy)
+                stag = f"[{pos.strategy}] " if pos.strategy != "FADE" else ""
 
-                if hit_take_profit(pos.side, pos.entry_mid, exec_price):
+                if hit_take_profit(pos.side, pos.entry_mid, exec_price, ep["tp"]):
                     res = broker.close(tid, current, "tp")
                     if res:
                         _, pnl = res
-                        print(f"✅ [TP] {tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                        print(f"✅ [TP] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
                         rearm_tracker.touch(tid)
                     continue
 
-                if hit_stop_loss(pos.side, pos.entry_mid, current):
+                if hit_stop_loss(pos.side, pos.entry_mid, current, ep["sl"]):
                     res = broker.close(tid, current, "sl")
                     if res:
                         _, pnl = res
-                        print(f"🛑 [SL] {tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                        print(f"🛑 [SL] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
                         rearm_tracker.touch(tid)
                     continue
 
                 if ENABLE_TRAILING_STOP and not is_stale:
-                    should_trail, new_peak = check_trailing_stop(pos, exec_price, is_stale=is_stale)
+                    should_trail, new_peak = check_trailing_stop(
+                        pos, exec_price, is_stale=is_stale,
+                        activate_pct=ep["trail_activate"], stop_pct=ep["trail_stop"])
                     pos.peak_profit_pct = new_peak
-                    if new_peak >= TRAILING_ACTIVATE_PCT and not pos.trailing_active:
+                    if new_peak >= ep["trail_activate"] and not pos.trailing_active:
                         pos.trailing_active = True
                     if should_trail:
                         res = broker.close(tid, current, "trailing_stop")
                         if res:
                             _, pnl = res
-                            print(f"✅ [TRAIL] {tid[:16]}... {pos.side} pnl=${pnl:.4f} peak={new_peak*100:.1f}%")
+                            print(f"✅ [TRAIL] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f} peak={new_peak*100:.1f}%")
                             rearm_tracker.touch(tid)
                         continue
 
-                if not is_stale and hit_breakeven_exit(pos.side, pos.entry_mid, current, age):
+                if not is_stale and hit_breakeven_exit(pos.side, pos.entry_mid, current, age, ep["be_sec"], ep["be_tol"]):
                     res = broker.close(tid, current, "breakeven")
                     if res:
                         _, pnl = res
-                        print(f"↔️ [BE] {tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                        print(f"↔️ [BE] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
                         rearm_tracker.touch(tid)
                     continue
 
-                if age >= TIME_EXIT_SEC_PRIMARY:
+                if age >= ep["time"]:
                     res = broker.close(tid, current, "time_exit")
                     if res:
                         _, pnl = res
-                        print(f"⏰ [TIME] {tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                        print(f"⏰ [TIME] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
                         rearm_tracker.touch(tid)
 
             def try_open(rows, src):
@@ -1659,11 +1782,33 @@ def main():
                         if ts_epoch > 0 and abs(time.time() - ts_epoch) > MAX_SIGNAL_AGE_SEC:
                             skips.signal_stale += 1
                             continue
-                        sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
+
+                        game_phase = (r.get("game_phase") or "").strip().upper()
+
+                        # Strategy selection: TREND for live games, FADE otherwise
+                        if ENABLE_TREND and game_phase == "UNKNOWN":
+                            # Live game — prefer TREND (follow momentum)
+                            sig = row_to_trend_from_triggers(r) if src == "TRIG" else row_to_trend_from_outliers(r)
+                            strategy = "TREND"
+                            z_min = TREND_Z_OPEN
+                            if not sig:
+                                # Fallback to FADE if TREND parser rejects
+                                sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
+                                strategy = "FADE"
+                                z_min = Z_OPEN
+                        else:
+                            # Non-live — FADE first, TREND fallback
+                            sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
+                            strategy = "FADE"
+                            z_min = Z_OPEN
+                            if not sig and ENABLE_TREND:
+                                sig = row_to_trend_from_triggers(r) if src == "TRIG" else row_to_trend_from_outliers(r)
+                                strategy = "TREND"
+                                z_min = TREND_Z_OPEN
+
                         if not sig:
                             continue
                         tid, side, mid, z = sig
-                        game_phase = (r.get("game_phase") or "").strip().upper()
                         if BLOCK_PRE_GAME and game_phase == "PRE_GAME":
                             skips.game_phase_blocked += 1
                             continue
@@ -1691,17 +1836,18 @@ def main():
                         if not broker.can_afford_trade():
                             skips.low_cash += 1
                             continue
-                        if z < Z_OPEN:
+                        if z < z_min:
                             skips.z_out_of_band += 1
                             continue
                         if mid < MIN_MID_PRICE or mid > MAX_MID_PRICE:
                             skips.price_filter += 1
                             continue
-                        pos = broker.open(tid, side, mid, z)
+                        pos = broker.open(tid, side, mid, z, strategy=strategy)
                         if pos:
                             last_open_ts = time.time()
                             rearm_tracker.touch(tid)
-                            print(f"🔵 [OPEN] {tid[:16]}... {side} mid={mid:.4f} z={z:.1f} delta_pct={abs(to_float(r.get('delta'),0))/max(mid,1e-9)*100:.1f}%")
+                            stag = f"[{strategy}] " if strategy != "FADE" else ""
+                            print(f"🔵 [OPEN] {stag}{tid[:16]}... {side} mid={mid:.4f} z={z:.1f} delta_pct={abs(to_float(r.get('delta'),0))/max(mid,1e-9)*100:.1f}%")
                     except Exception as e:
                         logger.warning(f"Error processing {src} row: {e}")
                         skips.bad_row += 1
