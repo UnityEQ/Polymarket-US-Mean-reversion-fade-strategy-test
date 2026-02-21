@@ -66,16 +66,35 @@ Run the scanner first to see if market conditions are worth trading. If it says 
 
 ## How It Works
 
-**The monitor** connects to the Polymarket US WebSocket, streams best-bid/offer data for all active sports markets, and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase.
+**The monitor** connects to the Polymarket US WebSocket and subscribes to all active markets with a single wildcard subscribe (`market_slugs: []`). It streams best-bid/offer data and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase.
 
 **The trade bot** tails those CSV files in real-time. When it sees a qualifying FADE signal (spike likely to revert), it places an IOC order through the REST API. It then monitors the position and exits via take-profit (6%), stop-loss (6%), trailing stop, breakeven timeout (10min), or time exit (20min).
 
 **The scanner** runs its own mini z-score pipeline independently and scores overall market conditions. It tracks whether spikes actually revert (reversion rate) and beeps when conditions support the FADE strategy. It doesn't trade or write files — it's purely a go/no-go indicator.
 
+## API Examples
+
+`basic.py` is a standalone script with simple examples for interacting with the Polymarket US API — useful for learning the endpoints, auth, and WebSocket streaming without the complexity of the full trading system.
+
+```powershell
+# Set your credentials first
+$env:POLYMARKET_KEY_ID = "your-key-id"
+$env:POLYMARKET_SECRET_KEY = "your-base64-secret"
+
+python basic.py                  # Run all REST examples (balance, markets, book)
+python basic.py markets [N]      # List N active markets (default 20)
+python basic.py market <slug>    # Get single market details by slug
+python basic.py book <slug>      # Get order book with bids, offers, spread
+python basic.py balance          # Get account balance
+python basic.py stream           # Stream live BBO for ALL markets via wildcard
+python basic.py stream <slug>    # Stream live BBO for a single market
+```
+
 ## Files
 
 | File | What it does |
 |------|-------------|
+| `basic.py` | Simple API examples — REST endpoints and WebSocket streaming |
 | `monitor.py` | WebSocket market data ingestion, z-score signal detection, CSV output |
 | `trade.py` | CSV signal tailing, order execution (paper or live), position management |
 | `scanner.py` | Standalone condition scorer, reversion tracking, audible alerts |
@@ -101,6 +120,8 @@ Run the scanner first to see if market conditions are worth trading. If it says 
 ```powershell
 $env:DEBUG="1"; python monitor.py              # Verbose monitor logging
 $env:DEBUG_REJECTIONS="true"; python trade.py   # Log every rejected signal with reason
+python monitor.py --ws-test                    # Test wildcard WebSocket subscribe (30s)
+python monitor.py --ws-test --duration=60      # Same but listen for 60s
 ```
 
 ## Notes
