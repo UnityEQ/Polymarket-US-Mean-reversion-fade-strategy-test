@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trade.py - v15.0 - POLYMARKET US API - FADE + TREND STRATEGIES
+trade.py - v15.3 - POLYMARKET US API - FADE-ONLY + EXEC GUARD
 CHANGES FROM v14.5:
   - Entry orders now use IOC (Immediate-Or-Cancel) instead of GTC. GTC
     orders were sitting unfilled on the book because limit prices didn't
@@ -105,16 +105,16 @@ LIVE = os.getenv("LIVE", "false").lower() == "true"
 PAPER = not LIVE
 
 # Risk / exits
-TP_PCT = 0.10
+TP_PCT = 0.08
 SL_PCT = 0.04
 TIME_EXIT_SEC_PRIMARY = 720
-BREAKEVEN_EXIT_SEC = 480
+BREAKEVEN_EXIT_SEC = 600
 BREAKEVEN_TOLERANCE = 0.015
-TRAILING_ACTIVATE_PCT = 0.04
-TRAILING_STOP_PCT = 0.025
+TRAILING_ACTIVATE_PCT = 0.035
+TRAILING_STOP_PCT = 0.02
 
 # Opening filters
-Z_OPEN = 3.5
+Z_OPEN = 4.0
 Z_OPEN_OUTLIER = 4.5
 MAX_CONCURRENT_POS = 3
 MIN_REARM_SEC = 300
@@ -123,7 +123,7 @@ MIN_CASH_PER_TRADE = 1.0
 # Signal quality filters (anti-warmup-noise)
 MIN_DELTA_PCT = 0.015
 MAX_DELTA_PCT = 0.15
-MIN_OPEN_INTERVAL_SEC = 30
+MIN_OPEN_INTERVAL_SEC = 90
 MAX_SIGNAL_AGE_SEC = 15
 
 # Quality filters
@@ -149,7 +149,7 @@ DAILY_LOSS_LIMIT = -3.00      # Pause after -$3.00 realized PnL in a session
 CIRCUIT_BREAKER_ENABLED = True
 
 # TREND strategy (momentum following) — trades WITH directional moves during live games
-ENABLE_TREND = True   # Primary strategy — thin markets lack participants to revert, follow momentum
+ENABLE_TREND = True   # Enabled adaptively: isolated spikes → FADE, sustained moves → TREND
 TREND_TP_PCT = 0.12           # Wider — let momentum run
 TREND_SL_PCT = 0.05           # Moderate — room for brief pullbacks
 TREND_TIME_EXIT_SEC = 480     # 8 min — momentum fades fast
@@ -159,6 +159,11 @@ TREND_TRAILING_ACTIVATE_PCT = 0.025
 TREND_TRAILING_STOP_PCT = 0.02
 TREND_Z_OPEN = 3.5
 TREND_Z_OPEN_OUTLIER = 4.5
+
+# Adaptive strategy selection: signal clustering decides FADE vs TREND per market
+SIGNAL_CLUSTER_WINDOW_SEC = 300   # 5 min lookback window
+SIGNAL_CLUSTER_MIN_COUNT = 10     # Need 10+ signals before considering TREND
+SIGNAL_CLUSTER_RATIO = 0.75       # 75%+ same-direction signals = sustained move → TREND
 
 MARKET_BLOCKLIST = {
     "106290179211046540747289269936667551104628138202727334337396394027502415762364",
@@ -421,6 +426,7 @@ class MarketLossTracker:
             return self._losses.get(slug, 0)
 
 market_loss_tracker = MarketLossTracker()
+signal_tracker = SignalTracker()
 
 # =========================
 # Position
@@ -1467,6 +1473,72 @@ class SkipCounters:
     def has_any(self) -> bool:
         return any(v > 0 for v in self.__dict__.values())
 
+# ---------- Adaptive strategy selection ----------
+
+class SignalTracker:
+    """Track recent signal directions per market to decide FADE vs TREND.
+    Isolated spikes → FADE (mean reversion). Sustained same-direction moves → TREND (momentum).
+    """
+    def __init__(self):
+        self._history: Dict[str, deque] = {}
+
+    def record(self, slug: str, direction: str):
+        if slug not in self._history:
+            self._history[slug] = deque(maxlen=200)
+        self._history[slug].append((time.time(), direction))
+
+    def choose_strategy(self, slug: str, direction: str) -> str:
+        if not direction or slug not in self._history:
+            return "FADE"
+        now = time.time()
+        recent = [(ts, d) for ts, d in self._history[slug]
+                  if now - ts < SIGNAL_CLUSTER_WINDOW_SEC]
+        if len(recent) < SIGNAL_CLUSTER_MIN_COUNT:
+            return "FADE"
+        same_dir = sum(1 for _, d in recent if d == direction)
+        ratio = same_dir / len(recent)
+        if ratio >= SIGNAL_CLUSTER_RATIO:
+            return "TREND"
+        return "FADE"
+
+    def get_cluster_info(self, slug: str, direction: str) -> Tuple[int, int, float]:
+        """Return (same_dir_count, total_count, ratio) for logging."""
+        if slug not in self._history:
+            return 0, 0, 0.0
+        now = time.time()
+        recent = [(ts, d) for ts, d in self._history[slug]
+                  if now - ts < SIGNAL_CLUSTER_WINDOW_SEC]
+        total = len(recent)
+        if total == 0:
+            return 0, 0, 0.0
+        same_dir = sum(1 for _, d in recent if d == direction)
+        return same_dir, total, same_dir / total
+
+    def cleanup(self):
+        cutoff = time.time() - SIGNAL_CLUSTER_WINDOW_SEC * 2
+        for slug in list(self._history):
+            while self._history[slug] and self._history[slug][0][0] < cutoff:
+                self._history[slug].popleft()
+            if not self._history[slug]:
+                del self._history[slug]
+
+def extract_signal_direction(row: Dict[str, str]) -> Optional[str]:
+    """Extract SPIKE/DIP direction from raw CSV row (works for both trigger and outlier format)."""
+    sig = to_upper(row.get("signal"))
+    if sig in ("SPIKE", "DIP"):
+        return sig
+    z = to_float(row.get("z"), 0)
+    if z > 0:
+        return "SPIKE"
+    elif z < 0:
+        return "DIP"
+    delta = to_float(row.get("delta"), 0)
+    if delta > 0:
+        return "SPIKE"
+    elif delta < 0:
+        return "DIP"
+    return None
+
 def row_to_signal_from_triggers(row: Dict[str, str]) -> Optional[Tuple[str, str, float, float]]:
     if to_upper(row.get("decision")) != "ACCEPT":
         return None
@@ -1669,7 +1741,7 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v15.2 - POLYMARKET US API (TREND-FIRST STRATEGY)")
+    print(f"TRADE BOT v15.3 - POLYMARKET US API (ADAPTIVE FADE/TREND + EXEC GUARD)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
     print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
@@ -1679,7 +1751,8 @@ def main():
     print(f"Z threshold: FADE >= {Z_OPEN} / TREND >= {TREND_Z_OPEN}")
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
     print(f"Book spread max: {MAX_BOOK_SPREAD_PCT*100:.0f}%  Daily loss limit: ${DAILY_LOSS_LIMIT:.2f} (breaker={CIRCUIT_BREAKER_ENABLED})")
-    print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy order: {'TREND→FADE' if ENABLE_TREND else 'FADE only'}")
+    strat_mode = f"ADAPTIVE (cluster>={SIGNAL_CLUSTER_MIN_COUNT} @ {SIGNAL_CLUSTER_RATIO*100:.0f}%→TREND, else→FADE)" if ENABLE_TREND else "FADE only"
+    print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy: {strat_mode}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
 
@@ -1774,25 +1847,41 @@ def main():
                         continue
 
                 if not is_stale and hit_breakeven_exit(pos.side, pos.entry_mid, current, age, ep["be_sec"], ep["be_tol"]):
-                    res = broker.close(tid, current, "breakeven")
-                    if res:
-                        _, pnl = res
-                        print(f"↔️ [BE] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                        rearm_tracker.touch(tid)
-                    continue
+                    # Guard: don't close at breakeven if exec price would cause loss > SL
+                    exec_loss = _calc_profit_pct(pos.side, pos.entry_mid, exec_price)
+                    if exec_loss <= -ep["sl"]:
+                        logger.info(f"[BE-SKIP] {tid[:16]}... exec_price would lose {exec_loss*100:.1f}%, deferring to SL")
+                    else:
+                        res = broker.close(tid, current, "breakeven")
+                        if res:
+                            _, pnl = res
+                            print(f"↔️ [BE] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                            rearm_tracker.touch(tid)
+                        continue
 
                 if age >= ep["time"]:
-                    res = broker.close(tid, current, "time_exit")
-                    if res:
-                        _, pnl = res
-                        print(f"⏰ [TIME] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                        rearm_tracker.touch(tid)
+                    # Guard: don't time-exit if exec price would cause loss > SL
+                    exec_loss = _calc_profit_pct(pos.side, pos.entry_mid, exec_price)
+                    if exec_loss <= -ep["sl"]:
+                        logger.info(f"[TIME-SKIP] {tid[:16]}... exec_price would lose {exec_loss*100:.1f}%, deferring to SL")
+                    else:
+                        res = broker.close(tid, current, "time_exit")
+                        if res:
+                            _, pnl = res
+                            print(f"⏰ [TIME] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
+                            rearm_tracker.touch(tid)
 
             def try_open(rows, src):
                 nonlocal last_open_ts
                 for r in rows:
                     skips.signals_processed += 1
                     try:
+                        # Track signal direction for adaptive strategy selection
+                        direction = extract_signal_direction(r)
+                        slug_raw = (r.get("market_slug") or r.get("tid") or "").strip()
+                        if direction and slug_raw:
+                            signal_tracker.record(slug_raw, direction)
+
                         ts_epoch = to_float(r.get("ts_epoch"), 0)
                         if ts_epoch > 0 and abs(time.time() - ts_epoch) > MAX_SIGNAL_AGE_SEC:
                             skips.signal_stale += 1
@@ -1800,19 +1889,21 @@ def main():
 
                         game_phase = (r.get("game_phase") or "").strip().upper()
 
-                        # Strategy selection: TREND first (thin markets lack participants to revert), FADE fallback
-                        if ENABLE_TREND:
+                        # Adaptive strategy selection: signal clustering decides FADE vs TREND
+                        if ENABLE_TREND and direction and slug_raw:
+                            strategy = signal_tracker.choose_strategy(slug_raw, direction)
+                        else:
+                            strategy = "FADE"
+
+                        if strategy == "TREND":
                             sig = row_to_trend_from_triggers(r) if src == "TRIG" else row_to_trend_from_outliers(r)
-                            strategy = "TREND"
                             z_min = TREND_Z_OPEN
                             if not sig:
-                                # Fallback to FADE if TREND parser rejects
                                 sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
                                 strategy = "FADE"
                                 z_min = Z_OPEN
                         else:
                             sig = row_to_signal_from_triggers(r) if src == "TRIG" else row_to_signal_from_outliers(r)
-                            strategy = "FADE"
                             z_min = Z_OPEN
 
                         if not sig:
@@ -1859,7 +1950,11 @@ def main():
                             last_open_ts = time.time()
                             rearm_tracker.touch(tid)
                             stag = f"[{strategy}] " if strategy != "FADE" else ""
-                            print(f"🔵 [OPEN] {stag}{tid[:16]}... {side} mid={mid:.4f} z={z:.1f} delta_pct={abs(to_float(r.get('delta'),0))/max(mid,1e-9)*100:.1f}%")
+                            cluster_info = ""
+                            if strategy == "TREND" and direction and slug_raw:
+                                sc, st, sr = signal_tracker.get_cluster_info(slug_raw, direction)
+                                cluster_info = f" cluster={sc}/{st}({sr*100:.0f}%)"
+                            print(f"🔵 [OPEN] {stag}{tid[:16]}... {side} mid={mid:.4f} z={z:.1f} delta_pct={abs(to_float(r.get('delta'),0))/max(mid,1e-9)*100:.1f}%{cluster_info}")
                     except Exception as e:
                         logger.warning(f"Error processing {src} row: {e}")
                         skips.bad_row += 1
@@ -1872,6 +1967,7 @@ def main():
                 if hasattr(broker, 'cleanup_all'):
                     broker.cleanup_all()
                 rearm_tracker.force_cleanup()
+                signal_tracker.cleanup()
                 gc.collect()
                 last_cleanup = t
 
