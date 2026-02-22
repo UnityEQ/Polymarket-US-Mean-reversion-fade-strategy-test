@@ -137,14 +137,14 @@ OUT_HEADER = [
     "price_prev", "mid_before", "mid",
     "delta", "abs_delta", "z", "abs_z", "direction_strength", "signal",
     "volume", "best_bid", "best_ask", "spread", "percentile", "severity", "burst",
-    "trade_hint", "regime", "game_phase", "espn_period", "espn_score_diff"
+    "trade_hint", "regime", "game_phase", "pm_period", "pm_score_diff"
 ]
 
 TRIGGER_HEADER = [
     "ts_epoch", "market_slug", "event", "signal",
     "mid", "delta", "abs_z", "direction_strength", "volume",
     "hint_candidate", "decision", "reason", "regime", "spread",
-    "pos_size_hint", "game_phase", "espn_period", "espn_score_diff"
+    "pos_size_hint", "game_phase", "pm_period", "pm_score_diff"
 ]
 
 # -------------------- Polymarket US Client (REST only — discovery + balance) --------------------
@@ -384,166 +384,140 @@ def parse_slug_parts(slug: str) -> Optional[dict]:
     return {'sport': sport, 'team1': parts[0], 'team2': parts[1], 'date_str': date_str}
 
 
-# -------------------- ESPN Live Score Cache --------------------
+# -------------------- Polymarket Native Score Cache --------------------
 
-ESPN_REFRESH_SEC = 60
-ESPN_ENDPOINTS = {
-    'nba': 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
-    'cbb': 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard',
-    'nfl': 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
-    'ufc': 'https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard',
-    'mls': 'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard',
-}
-# CBB default only returns featured games; groups=50 gets all D1
-ESPN_EXTRA_PARAMS = {
-    'cbb': {'groups': '50', 'limit': '300'},
-}
+PM_SCORE_REFRESH_SEC = 60
+PM_SCORE_SPORTS = {'nba', 'cbb', 'nfl', 'ufc', 'mls'}
 
 
-def _espn_team_matches(slug_team: str, competitors: list) -> bool:
-    """Check if a slug team abbreviation matches any ESPN competitor."""
-    st = slug_team.upper()
-    for c in competitors:
-        team = c.get('team', {}) if 'team' in c else c.get('athlete', {})
-        abbrev = (team.get('abbreviation') or '').upper()
-        location = (team.get('location') or '').upper()
-        short_name = (team.get('shortDisplayName') or '').upper()
-        name = (team.get('displayName') or '').upper()
-        if st == abbrev:
-            return True
-        if len(st) >= 3 and location.startswith(st):
-            return True
-        if len(st) >= 3 and short_name.startswith(st):
-            return True
-        if len(st) >= 3 and abbrev.startswith(st):
-            return True
-        # UFC: match against fighter name substrings
-        if len(st) >= 4 and st in name:
-            return True
-    return False
+class PMScoreCache:
+    """Fetches and caches live score data from Polymarket's own market detail endpoint.
 
-
-def _match_slug_to_game(slug_parts: dict, espn_events: list) -> Optional[dict]:
-    """Find the ESPN event matching a parsed slug. Returns competition dict or None."""
-    for event in espn_events:
-        comps = event.get('competitions', [])
-        if not comps:
-            continue
-        comp = comps[0]
-        competitors = comp.get('competitors', [])
-        if len(competitors) < 2:
-            continue
-        if _espn_team_matches(slug_parts['team1'], competitors) and \
-           _espn_team_matches(slug_parts['team2'], competitors):
-            return comp
-    return None
-
-
-class ESPNScoreCache:
-    """Fetches and caches ESPN live score data for game phase + score filters."""
+    Uses GET /v1/market/slug/{slug} → events[0] for live/period/score fields.
+    No external dependency — 1:1 slug match, zero mapping needed.
+    """
 
     def __init__(self):
         self._cache: Dict[str, dict] = {}
         self._lock = threading.Lock()
-        self._session = requests.Session()
-        self._session.headers['User-Agent'] = 'PolymarketBot/1.0'
-        self._unmatched_logged: Set[str] = set()
 
-    def refresh(self, active_slugs: dict):
-        """Fetch ESPN scoreboards for today's games only and match to active slugs."""
+    def refresh(self, active_slugs: dict, client: 'PolymarketUSClient'):
+        """Fetch market details for today's sports slugs and extract score data."""
         today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-        # Only fetch today's date — past/future already classified by slug date heuristics
-        sports_needed: Set[str] = set()
-        slug_parts_map: Dict[str, dict] = {}
+        slugs_to_fetch: List[str] = []
         for slug in active_slugs:
             sp = parse_slug_parts(slug)
-            if sp and sp['sport'] in ESPN_ENDPOINTS and sp['date_str'] == today_str:
-                sports_needed.add(sp['sport'])
-                slug_parts_map[slug] = sp
+            if sp and sp['sport'] in PM_SCORE_SPORTS and sp['date_str'] == today_str:
+                slugs_to_fetch.append(slug)
 
-        if not slug_parts_map:
+        if not slugs_to_fetch:
             with self._lock:
                 self._cache = {}
             return
 
-        # Fetch from ESPN — one request per sport, today only
-        all_events: Dict[str, list] = {}
-        espn_date = today_str.replace('-', '')
-        for sport in sports_needed:
-            endpoint = ESPN_ENDPOINTS[sport]
-            params = {'dates': espn_date}
-            params.update(ESPN_EXTRA_PARAMS.get(sport, {}))
-            try:
-                resp = self._session.get(endpoint, params=params, timeout=8)
-                if resp.status_code == 200:
-                    all_events[sport] = resp.json().get('events', [])
-            except Exception:
-                pass
-
-        # Match slugs to ESPN events
         new_cache: Dict[str, dict] = {}
-        unmatched = []
-        for slug, sp in slug_parts_map.items():
-            events = all_events.get(sp['sport'], [])
-            comp = _match_slug_to_game(sp, events)
-            if comp:
-                status = comp.get('status', {})
-                status_type = status.get('type', {})
-                espn_state = status_type.get('state', '')
-                # Only populate score details for live games
-                if espn_state == 'in':
-                    competitors = comp.get('competitors', [])
-                    scores = []
-                    for c in competitors:
-                        try:
-                            scores.append(int(c.get('score', 0) or 0))
-                        except (ValueError, TypeError):
-                            scores.append(0)
+        errors = 0
+        for slug in slugs_to_fetch:
+            try:
+                details = client.get_market_details(slug)
+                if not details:
+                    errors += 1
+                    continue
+                events = details.get("events") or []
+                if not events:
+                    # No events data — cache as pre-game (safe default)
                     new_cache[slug] = {
-                        'espn_state': espn_state,
-                        'period': status.get('period', 0) or 0,
-                        'score_diff': abs(scores[0] - scores[1]) if len(scores) >= 2 else 0,
-                        'clock': status.get('displayClock', ''),
-                    }
-                else:
-                    # Pre/post: just cache state for phase classification, no score details
-                    new_cache[slug] = {
-                        'espn_state': espn_state,
+                        'pm_state': 'pre',
                         'period': 0,
-                        'score_diff': 0,
-                        'clock': '',
+                        'score_diff': -1,
                     }
-            else:
-                if slug not in self._unmatched_logged:
-                    unmatched.append(slug)
-                    self._unmatched_logged.add(slug)
+                    continue
+                ev = events[0] if isinstance(events, list) else events
+                # Determine state from event fields
+                is_live = ev.get("live", False)
+                is_ended = ev.get("ended", False)
+                if is_ended:
+                    pm_state = "post"
+                elif is_live:
+                    pm_state = "in"
+                else:
+                    pm_state = "pre"
+
+                sp = parse_slug_parts(slug)
+                sport = sp['sport'] if sp else ''
+                period = self._parse_period(ev.get("period", ""), sport)
+                score_diff = self._parse_score_diff(ev.get("score", ""))
+
+                new_cache[slug] = {
+                    'pm_state': pm_state,
+                    'period': period,
+                    'score_diff': score_diff,
+                }
+            except Exception:
+                errors += 1
+            time.sleep(0.1)  # 100ms between requests — ~5-8s for 50-80 slugs
 
         with self._lock:
             self._cache = new_cache
 
-        total_events = sum(len(e) for e in all_events.values())
-        matched = len(new_cache)
-        total = len(slug_parts_map)
-        live = sum(1 for v in new_cache.values() if v['espn_state'] == 'in')
-        logger.info(f"[ESPN] Matched {matched}/{total} slugs ({live} live, {total_events} ESPN events)")
-        if unmatched:
-            logger.info(f"[ESPN-NOMATCH] {unmatched[:5]}")
+        live = sum(1 for v in new_cache.values() if v['pm_state'] == 'in')
+        logger.info(f"[PM-SCORE] {len(new_cache)}/{len(slugs_to_fetch)} fetched ({live} live, {errors} errors)")
+
+    @staticmethod
+    def _parse_period(period_str: str, sport: str) -> int:
+        """Convert period string to numeric. 'Q2'→2, 'H1'→1, 'OT'→5/3, ''→0."""
+        if not period_str:
+            return 0
+        p = str(period_str).strip().upper()
+        # Numeric already
+        try:
+            return int(p)
+        except ValueError:
+            pass
+        # Quarter: Q1-Q4
+        if p.startswith('Q') and len(p) == 2 and p[1].isdigit():
+            return int(p[1])
+        # Half: H1, H2
+        if p.startswith('H') and len(p) == 2 and p[1].isdigit():
+            return int(p[1])
+        # Overtime
+        if p.startswith('OT'):
+            # CBB has 2 halves, so OT=3; NBA has 4 quarters, so OT=5
+            if sport == 'cbb':
+                return 3
+            return 5
+        return 0
+
+    @staticmethod
+    def _parse_score_diff(score_str: str) -> int:
+        """Parse score string like '31-48' → 17. Empty → -1 (unknown)."""
+        if not score_str:
+            return -1
+        try:
+            parts = str(score_str).split('-')
+            if len(parts) == 2:
+                return abs(int(parts[0].strip()) - int(parts[1].strip()))
+        except (ValueError, TypeError):
+            pass
+        return -1
 
     def get(self, slug: str) -> Optional[dict]:
         with self._lock:
             return self._cache.get(slug)
 
 
-ESPN_CACHE: Optional[ESPNScoreCache] = None
+PM_SCORE_CACHE: Optional[PMScoreCache] = None
 
 
 def classify_game_phase(meta: dict, slug: str) -> str:
     """Classify game phase: PRE_GAME, LIVE, POST_GAME, or UNKNOWN.
 
-    Priority: slug date for coarse classification (tomorrow+=PRE_GAME,
-    yesterday-=POST_GAME), then API start/end dates for same-day refinement.
-    API startDate is often market creation time, not game time, so slug date
-    must take priority for cross-day checks.
+    Priority:
+    1. Slug date for coarse classification (tomorrow+=PRE_GAME, yesterday-=POST_GAME)
+    2. Polymarket native score data (definitive for same-day games)
+    3. gameStartTime from meta (if in future → PRE_GAME)
+    4. API end_date fallback
+    5. UNKNOWN
     """
     from datetime import timedelta
     now_utc = datetime.now(timezone.utc)
@@ -557,21 +531,33 @@ def classify_game_phase(meta: dict, slug: str) -> str:
             return "PRE_GAME"
         if game_date < today_start:
             return "POST_GAME"
-        # Game date is today — check ESPN for definitive classification
+        # Game date is today — check PM score data for definitive classification
 
-    # Step 2: ESPN live data (definitive for same-day games)
-    if ESPN_CACHE:
-        espn = ESPN_CACHE.get(slug)
-        if espn:
-            espn_state = espn.get('espn_state', '')
-            if espn_state == 'pre':
+    # Step 2: Polymarket native score data (definitive for same-day games)
+    if PM_SCORE_CACHE:
+        pm = PM_SCORE_CACHE.get(slug)
+        if pm:
+            pm_state = pm.get('pm_state', '')
+            if pm_state == 'pre':
                 return "PRE_GAME"
-            elif espn_state == 'in':
+            elif pm_state == 'in':
                 return "LIVE"
-            elif espn_state == 'post':
+            elif pm_state == 'post':
                 return "POST_GAME"
 
-    # Step 3: API end_date fallback for same-day
+    # Step 3: gameStartTime from meta — if in future, it's pre-game
+    start_str = meta.get("game_start_time", "")
+    if start_str:
+        try:
+            start_dt = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+            if start_dt.tzinfo is None:
+                start_dt = start_dt.replace(tzinfo=timezone.utc)
+            if now_utc < start_dt:
+                return "PRE_GAME"
+        except (ValueError, TypeError):
+            pass
+
+    # Step 4: API end_date fallback for same-day
     end_str = meta.get("end_date", "")
     if end_str:
         try:
@@ -779,6 +765,7 @@ def discover(refresh: bool = False):
             "start_date": m.get("startDate") or m.get("start_date") or "",
             "end_date": m.get("endDate") or m.get("end_date") or "",
             "game_id": m.get("gameId") or m.get("game_id") or "",
+            "game_start_time": m.get("gameStartTime") or "",
         }
         loaded += 1
 
@@ -985,9 +972,9 @@ def process_bbo_update(slug: str, best_bid_raw, best_ask_raw, market_state: str 
 
     pos_size = POSITION_SIZE_FACTOR * conf if decision == "ACCEPT" else 0.0
     game_phase = classify_game_phase(meta, slug)
-    espn_data = ESPN_CACHE.get(slug) if ESPN_CACHE else None
-    espn_period = espn_data.get('period', 0) if espn_data else 0
-    espn_score_diff = espn_data.get('score_diff', '') if espn_data else ''
+    pm_data = PM_SCORE_CACHE.get(slug) if PM_SCORE_CACHE else None
+    pm_period = pm_data.get('period', 0) if pm_data else 0
+    pm_score_diff = pm_data.get('score_diff', '') if pm_data else ''
 
     with CSV_LOCK:
         write_csv_row(TRIGGERS_CSV, TRIGGER_HEADER, {
@@ -997,8 +984,8 @@ def process_bbo_update(slug: str, best_bid_raw, best_ask_raw, market_state: str 
             "hint_candidate": hint, "decision": decision, "reason": reason,
             "regime": STATE.current_regime, "spread": f"{curr_spread:.5f}" if curr_spread else "",
             "pos_size_hint": f"{pos_size:.4f}", "game_phase": game_phase,
-            "espn_period": str(espn_period) if espn_period else "",
-            "espn_score_diff": str(espn_score_diff) if espn_score_diff != '' else "",
+            "pm_period": str(pm_period) if pm_period else "",
+            "pm_score_diff": str(pm_score_diff) if pm_score_diff != '' else "",
         })
 
         write_csv_row(OUTLIER_CSV, OUT_HEADER, {
@@ -1016,8 +1003,8 @@ def process_bbo_update(slug: str, best_bid_raw, best_ask_raw, market_state: str 
             "percentile": f"{pctl:.0f}%", "severity": sev, "burst": burst,
             "trade_hint": hint, "regime": STATE.current_regime,
             "game_phase": game_phase,
-            "espn_period": str(espn_period) if espn_period else "",
-            "espn_score_diff": str(espn_score_diff) if espn_score_diff != '' else "",
+            "pm_period": str(pm_period) if pm_period else "",
+            "pm_score_diff": str(pm_score_diff) if pm_score_diff != '' else "",
         })
 
     arr = "↑" if sig == "SPIKE" else "↓"
@@ -1419,20 +1406,20 @@ def volume_refresh_thread():
         except Exception as e:
             logger.error(f"Volume refresh error: {e}")
 
-# -------------------- ESPN Score Refresh --------------------
-def espn_refresh_thread():
-    """Background thread: refresh ESPN live score data every ESPN_REFRESH_SEC."""
-    global ESPN_CACHE
-    ESPN_CACHE = ESPNScoreCache()
+# -------------------- Polymarket Score Refresh --------------------
+def pm_score_refresh_thread():
+    """Background thread: refresh Polymarket native score data every PM_SCORE_REFRESH_SEC."""
+    global PM_SCORE_CACHE
+    PM_SCORE_CACHE = PMScoreCache()
     # Initial fetch after a short delay to let discovery populate STATE.meta
     time.sleep(10)
     while not STOP.is_set():
         try:
-            if STATE.meta:
-                ESPN_CACHE.refresh(STATE.meta)
+            if STATE.meta and CLIENT:
+                PM_SCORE_CACHE.refresh(STATE.meta, CLIENT)
         except Exception as e:
-            logger.error(f"[ESPN] Refresh error: {e}")
-        for _ in range(ESPN_REFRESH_SEC):
+            logger.error(f"[PM-SCORE] Refresh error: {e}")
+        for _ in range(PM_SCORE_REFRESH_SEC):
             if STOP.is_set():
                 break
             time.sleep(1)
@@ -1646,7 +1633,7 @@ def run():
         threading.Thread(target=heartbeat_thread, daemon=True, name="heartbeat"),
         threading.Thread(target=refresh_thread, args=(ws_client,), daemon=True, name="refresh"),
         threading.Thread(target=volume_refresh_thread, daemon=True, name="volume_refresh"),
-        threading.Thread(target=espn_refresh_thread, daemon=True, name="espn_refresh"),
+        threading.Thread(target=pm_score_refresh_thread, daemon=True, name="pm_score_refresh"),
         threading.Thread(target=cleanup_thread, daemon=True, name="cleanup"),
     ]
     for t in threads:

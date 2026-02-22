@@ -17,8 +17,8 @@ Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/d
 - **Signal pipeline**: BBO update → mid calculation → delta/z-score → percentile gate → severity classification → trade hint (FADE/TREND) → CSV output
 - **Regime detection**: Tracks spike outcomes to classify market as `MEAN_REVERT` or `TRENDING`
 - **Volume refresh thread**: Background thread running every 60s, re-fetches REST volumes and logs OI count statistics
-- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Priority: (1) slug date for cross-day (tomorrow+=PRE_GAME, yesterday-=POST_GAME), (2) ESPN live data for same-day (definitive pre/in/post), (3) API endDate fallback. Written to `game_phase` column + `espn_period` and `espn_score_diff` columns in both CSVs.
-- **ESPN score integration**: `ESPNScoreCache` fetches live scoreboards every 60s from ESPN's free API (no auth). `espn_refresh_thread()` runs in background. Covers NBA, CBB, NFL, UFC, MLS. Only fetches today's date (UTC) — past/future dates already classified by slug-date heuristics. Only populates score details (period, score_diff) for live ("in") games. CBB requires `groups=50&limit=300` params to get all D1 games (default only returns featured). Matches slugs to ESPN games via fuzzy team name matching (`_espn_team_matches`: exact abbreviation, prefix of location/shortDisplayName/abbreviation, substring of displayName for UFC). Known gap: Polymarket uses compressed abbreviations (amercn, bostu, mphs, ohiost) that don't prefix-match ESPN names — these stay UNKNOWN. Slug parser: `parse_slug_parts()` extracts sport/teams/date from slugs like `aec-cbb-duke-mich-2026-02-21`.
+- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Priority: (1) slug date for cross-day (tomorrow+=PRE_GAME, yesterday-=POST_GAME), (2) Polymarket native score data for same-day (definitive pre/in/post), (3) gameStartTime from meta (if in future → PRE_GAME), (4) API endDate fallback. Written to `game_phase` column + `pm_period` and `pm_score_diff` columns in both CSVs.
+- **Polymarket score integration**: `PMScoreCache` fetches live game data every 60s from Polymarket's own `GET /v1/market/slug/{slug}` endpoint → `events[0]` fields (`live`, `ended`, `period`, `score`). `pm_score_refresh_thread()` runs in background. Covers NBA, CBB, NFL, UFC, MLS. Only fetches today's date (UTC) — past/future dates already classified by slug-date heuristics. 1:1 slug match — no team mapping or fuzzy matching needed. Rate limited at 100ms between requests (~5-8s per cycle for 50-80 slugs). Slug parser: `parse_slug_parts()` extracts sport/teams/date from slugs like `aec-cbb-duke-mich-2026-02-21`.
 - **Output**: Writes to `poly_us_outliers_YYYY-MM-DD.csv` and `poly_us_triggers_YYYY-MM-DD.csv`
 
 ### `trade.py` — Trade Bot
@@ -28,7 +28,7 @@ Tails the CSV files written by monitor.py and executes trades (paper or live). I
 - **LiveBroker**: Real broker using Ed25519-signed REST calls to `api.polymarket.us`
 - **TailState**: File tailer that reads new CSV lines incrementally
 - **Signal parsing**: `row_to_signal_from_triggers()` and `row_to_signal_from_outliers()` extract (slug, side, mid, z) tuples with delta/spread/volume filters
-- **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase, BUY_NO-only filter, ESPN late-game close contest filter)
+- **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase, BUY_NO-only filter, Polymarket score-based late-game close contest filter)
 - **Adaptive strategy selection**: `SignalTracker` records signal directions per market. `choose_strategy()` counts same-direction signals in a 5-min window — if 75%+ of 10+ signals are same direction, uses TREND (sustained move); otherwise FADE (isolated spike reverts). `extract_signal_direction()` pulls SPIKE/DIP from raw CSV row before parsing. Log line shows `cluster=X/Y(Z%)` for TREND entries.
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel); close fallback also IOC
@@ -49,11 +49,11 @@ Standalone pre-flight tool. Runs its own mini z-score pipeline on WebSocket BBO 
 
 ### Data Flow
 ```
-ESPN API (every 60s) → ESPNScoreCache → classify_game_phase() + CSV espn_period/espn_score_diff
+Polymarket REST (every 60s) → PMScoreCache → classify_game_phase() + CSV pm_period/pm_score_diff
 monitor.py (WebSocket BBO + REST discovery) → poly_us_triggers_*.csv / poly_us_outliers_*.csv → trade.py (tail + execute)
-  ├─ classify_game_phase() → game_phase column (now ESPN-enriched: LIVE/PRE_GAME/POST_GAME)
-  ├─ espn_period + espn_score_diff columns → trade.py late-game close contest filter
-  └─ STATE.meta[slug] stores start_date/end_date/game_id from REST  ↕ poly_mids_latest.json (paper mode)
+  ├─ classify_game_phase() → game_phase column (PM score-enriched: LIVE/PRE_GAME/POST_GAME)
+  ├─ pm_period + pm_score_diff columns → trade.py late-game close contest filter
+  └─ STATE.meta[slug] stores start_date/end_date/game_id/game_start_time from REST  ↕ poly_mids_latest.json (paper mode)
 scanner.py (WebSocket BBO + REST discovery) → console dashboard + system beep (standalone, no file output)
   └─ MARKET_META stores timing fields → game phase counts in dashboard + pre-game score penalty
 ```
@@ -112,7 +112,7 @@ pip install websocket-client requests cryptography psutil
 
 ## Class Index
 
-**monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing), `ESPNScoreCache` (fetches ESPN scoreboards every 60s, matches to slugs via fuzzy team matching, caches game state/period/score for `classify_game_phase()` and CSV enrichment)
+**monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing), `PMScoreCache` (fetches Polymarket native score data every 60s via `GET /v1/market/slug/{slug}` → `events[0]`, caches game state/period/score for `classify_game_phase()` and CSV enrichment; 1:1 slug match, no external dependency)
 
 **trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `SignalTracker` (adaptive strategy selection via signal clustering — records per-market signal directions, `choose_strategy()` returns FADE or TREND based on 5-min window ratio), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection + book spread guard), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`, `circuit_breaker`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `extract_signal_direction()` gets SPIKE/DIP from raw row, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
 
