@@ -206,6 +206,8 @@ Observations gathered from live runs and log analysis. Use these to identify pat
 - **TREND trailing stop is the best exit for momentum** (2026-02-21): Both trailing stop exits were wins (+$0.049, +$0.031), peaking at 10% and 7.6%. `[ACTED]` Lowered `TREND_TRAILING_ACTIVATE_PCT` from 3.5% to 2.5% to capture partial profits sooner before game events reverse.
 - **FADE breakeven exits dominate during flat pre-game/early-game** (2026-02-21): Feb 20 session: 7/9 trades hit breakeven with avg -$0.015 fee drag each. Markets simply don't move enough for FADE — price sits flat then exits at a loss from round-trip fees.
 - **TREND 3W/3L is better hit rate than FADE 1W/8L but worse risk/reward** (2026-02-21): TREND avg win $0.083 vs avg loss $0.142. Still underwater on risk/reward due to gap losses. Need the trailing stop activation to capture more partial wins.
+- **Trailing stop peak decay kills protection on marginal activations** (2026-02-22): fair-quin BUY_NO peaked at 4.1% exec profit (ask=0.240 for 60s). Trailing armed (>2.5%), but flat exec_price meant no pullback to fire it. After 60s, peak decayed 25% to 3.08%. When ask jumped 0.240→0.270 in one tick, `consecutive_profit_mids` reset to 0 — both firing conditions failed. Price continued to SL at -10.8%. The `TRAILING_MIN_CONSECUTIVE=2` requirement prevents the stop from firing on sudden reversals after extended flat profitable periods.
+- **CBB first-half live events still cause gap-through-SL** (2026-02-22): fair-quin period=1, score_diff=2. YES gapped from mid 0.295→0.325 in one 5s poll (game event). SL triggered at 7.5% loss (mid), filled at 9.6% (ask). Same pattern as all prior game-event SL losses, even in first half of a close game.
 
 ### MIN_VOLUME Tuning Log
 Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volume_log.md). Key findings (as of 2026-02-10):
@@ -214,7 +216,7 @@ Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volum
 - **NFL OI (620K+) >> CBB (28-15.6K) >> NBA (9-959)**. May need sport-specific thresholds.
 - **Avg SL loss (12.6%) is 1.8x avg TP win (7.0%)** due to live game-event gap risk. Inherent to sports — no code fix.
 - **Pre-game markets (all sports) consistently untradeable** — wide real spreads, flat prices, breakeven exits at a loss.
-- **Cumulative live stats: 13W/29L, -$0.47** (through 2026-02-21). v15.3 ADAPTIVE: 7W/12L +$0.098 (first profitable session). BUY_NO: 6W/7L +$0.530, BUY: 1W/4L -$0.402. `[ACTED]` v15.4: BUY_NO only (`FADE_NO_SIDE_ONLY=True`) — BUY-side fades dips which are real game info in live sports. Projected v15.3 PnL with BUY_NO filter: +$0.500.
+- **Cumulative live stats: 13W/30L, -$0.59** (through 2026-02-22). v15.4 first trade: 0W/1L, -$0.1168 (fair-quin SL gap). BUY_NO: 6W/8L +$0.413. v15.3 ADAPTIVE: 7W/12L +$0.098 (first profitable session). `[ACTED]` v15.4: BUY_NO only (`FADE_NO_SIDE_ONLY=True`) — BUY-side fades dips which are real game info in live sports.
 
 ## Agent Instructions
 

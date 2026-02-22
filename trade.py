@@ -534,9 +534,13 @@ def check_trailing_stop(pos: Position, current: float, is_stale: bool = False,
     elif not is_stale:
         pos.consecutive_profit_mids = 0
 
-    if new_peak >= activate_pct and pos.consecutive_profit_mids >= TRAILING_MIN_CONSECUTIVE:
-        if profit_pct <= new_peak - stop_pct:
-            return True, new_peak
+    # Once trailing is active, bypass consecutive/peak-threshold gates —
+    # only check the actual pullback condition against (possibly decayed) peak.
+    # Before activation, require both peak above threshold AND consecutive confirmation.
+    can_fire = pos.trailing_active or (
+        new_peak >= activate_pct and pos.consecutive_profit_mids >= TRAILING_MIN_CONSECUTIVE)
+    if can_fire and profit_pct <= new_peak - stop_pct:
+        return True, new_peak
 
     return False, new_peak
 
