@@ -21,7 +21,7 @@ Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/d
 - **Output**: Writes to `poly_us_outliers_YYYY-MM-DD.csv` and `poly_us_triggers_YYYY-MM-DD.csv`
 
 ### `trade.py` — Trade Bot
-Tails the CSV files written by monitor.py and executes trades (paper or live). Implements an adaptive FADE/TREND strategy selected per-market via signal clustering.
+Tails the CSV files written by monitor.py and executes trades (paper or live). Implements BUY_NO-only FADE mean-reversion strategy (fades YES-price spikes by buying NO side).
 
 - **PaperBroker**: Simulated broker using CSV mid prices from monitor + JSON mids file
 - **LiveBroker**: Real broker using Ed25519-signed REST calls to `api.polymarket.us`
@@ -101,11 +101,11 @@ pip install websocket-client requests cryptography psutil
 
 **monitor.py**: `BASE_SPIKE_THRESHOLD=0.003`, `BASE_Z_SCORE_MIN=0.8`, `WATCH_Z=1.5`, `ALERT_Z=3.0`, `MAX_SPREAD_PCT=0.15`, `MID_MIN=0.12`, `MID_MAX=0.55`, `HISTORY_LEN=50`, `V24_MIN=10`, `SHARES_ACTIVITY_MIN=50`, `COOLDOWN_PER_SLUG=60`, `VOLUME_REFRESH_SEC=60`, `MARKET_REFRESH_SEC=300`
 
-**trade.py (FADE)**: `Z_OPEN=4.0`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.08`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=600`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.035`, `TRAILING_STOP_PCT=0.02`
+**trade.py (FADE)**: `Z_OPEN=4.0`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.06`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=480`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.025`, `TRAILING_STOP_PCT=0.02`
 
-**trade.py (TREND)**: `ENABLE_TREND=True` (adaptive), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection**: `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
+**trade.py (TREND)**: `ENABLE_TREND=False` (disabled — 5W/31L -$2.87 historically), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection** (inactive): `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.45`, `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only — BUY-side FADE loses structurally on live sports), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
@@ -196,7 +196,7 @@ Observations gathered from live runs and log analysis. Use these to identify pat
 - **OI=91 too thin for fills** (2026-02-07): SAC vs NO order placed IOC at mid=0.3645 (in the sweet spot), z=3.77, but no counterparty existed. Spread looked tight (3.9%) from WS but zero depth behind it. Even a $1 order couldn't fill. MIN_VOLUME=10 let this through — likely need MIN_VOLUME >= 200+ for reliable fills.
 
 ### Strategy Implications
-- **FADE sweet spot appears to be mid 0.25-0.45** (strengthened 2026-02-21): `[ACTED]` MAX_MID_PRICE lowered from 0.55 to 0.45. mspst-sc at mid=0.50 hit SL (-$0.073). Feb 20: 7/9 FADE trades hit breakeven — near-50/50 markets are a coinflip, fee drag kills the edge.
+- **FADE sweet spot appears to be mid 0.25-0.40** (strengthened 2026-02-21): `[ACTED]` MAX_MID_PRICE lowered from 0.45 to 0.40. All BUY_NO TP wins in v15.3 had mid < 0.40 (0.258-0.362). BUY_NO SL losses at mid 0.414 and 0.421 would be filtered by 0.40 ceiling.
 - **Consider sport-specific filters** (hypothesis): NFL has deep liquidity but favorites are heavily skewed. CBB underdogs (low mid) might be the best FADE candidates if OI is sufficient. NBA TBD — tomorrow's 9-game slate (2026-02-08) will provide first real NBA data.
 - **Live CBB game events = adverse selection for FADE** (2026-02-08): NCG-Furman entry at mid=0.4265 (in the sweet spot) with z=3.8, clean fill on 5,282 shares. But the spike was real info — game event pushed YES from 0.447 → 0.488+ in one tick, SL loss 15.3% (2.5x target). FADE assumes mean-reversion, but live game events ARE the new mean. The signal quality filters (z, delta, spread) can't distinguish noise from real game momentum.
 - **TREND gap risk is severe — actual SL losses 3-6x target** (2026-02-21): 3 TREND SL exits had actual losses of 17.5%, 29.3%, 16.7% vs 5% target. Price gaps through the stop on live game events. 5-second polling can't catch intra-tick jumps. `[ACTED]` Added raw book spread guard (`MAX_BOOK_SPREAD_PCT=15%`) — would have blocked trade #1 (22% spread). Also added daily loss circuit breaker (`DAILY_LOSS_LIMIT=-$0.30`).
@@ -211,7 +211,7 @@ Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volum
 - **NFL OI (620K+) >> CBB (28-15.6K) >> NBA (9-959)**. May need sport-specific thresholds.
 - **Avg SL loss (12.6%) is 1.8x avg TP win (7.0%)** due to live game-event gap risk. Inherent to sports — no code fix.
 - **Pre-game markets (all sports) consistently untradeable** — wide real spreads, flat prices, breakeven exits at a loss.
-- **Cumulative live stats: 6W/17L, -$0.57** (through 2026-02-21). Feb 20 FADE: 1W/8L -$0.17. Feb 21 TREND: 3W/3L -$0.18 (+ 1 open). All wins in CBB mid 0.25-0.45. Gap risk on SL is the primary P&L destroyer.
+- **Cumulative live stats: 13W/29L, -$0.47** (through 2026-02-21). v15.3 ADAPTIVE: 7W/12L +$0.098 (first profitable session). BUY_NO: 6W/7L +$0.530, BUY: 1W/4L -$0.402. `[ACTED]` v15.4: BUY_NO only (`FADE_NO_SIDE_ONLY=True`) — BUY-side fades dips which are real game info in live sports. Projected v15.3 PnL with BUY_NO filter: +$0.500.
 
 ## Agent Instructions
 

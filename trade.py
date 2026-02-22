@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trade.py - v15.3 - POLYMARKET US API - FADE-ONLY + EXEC GUARD
+trade.py - v15.4 - POLYMARKET US API - BUY_NO FADE + EXEC GUARD
 CHANGES FROM v14.5:
   - Entry orders now use IOC (Immediate-Or-Cancel) instead of GTC. GTC
     orders were sitting unfilled on the book because limit prices didn't
@@ -105,12 +105,12 @@ LIVE = os.getenv("LIVE", "false").lower() == "true"
 PAPER = not LIVE
 
 # Risk / exits
-TP_PCT = 0.08
+TP_PCT = 0.06
 SL_PCT = 0.04
 TIME_EXIT_SEC_PRIMARY = 720
-BREAKEVEN_EXIT_SEC = 600
+BREAKEVEN_EXIT_SEC = 480
 BREAKEVEN_TOLERANCE = 0.015
-TRAILING_ACTIVATE_PCT = 0.035
+TRAILING_ACTIVATE_PCT = 0.025
 TRAILING_STOP_PCT = 0.02
 
 # Opening filters
@@ -128,7 +128,7 @@ MAX_SIGNAL_AGE_SEC = 15
 
 # Quality filters
 MIN_MID_PRICE = 0.25
-MAX_MID_PRICE = 0.45
+MAX_MID_PRICE = 0.40
 MAX_SPREAD_BASE = 0.10
 MAX_SPREAD_MID = 0.13
 MAX_SPREAD_HIGH = 0.16
@@ -138,6 +138,7 @@ MAX_LOSSES_PER_MARKET = 2
 FADE_ONLY_TRIGGERS = True
 ENABLE_TRAILING_STOP = True
 SELL_BIAS = False
+FADE_NO_SIDE_ONLY = True      # Only take BUY_NO (NO-side) trades for FADE — BUY-side loses structurally
 BLOCK_PRE_GAME = True         # Block all pre-game entries (consistent losers)
 ALLOW_UNKNOWN_PHASE = True    # Allow entries when phase can't be determined
 
@@ -149,7 +150,7 @@ DAILY_LOSS_LIMIT = -3.00      # Pause after -$3.00 realized PnL in a session
 CIRCUIT_BREAKER_ENABLED = True
 
 # TREND strategy (momentum following) — trades WITH directional moves during live games
-ENABLE_TREND = True   # Enabled adaptively: isolated spikes → FADE, sustained moves → TREND
+ENABLE_TREND = False  # Disabled: 5W/31L -$2.87 historically, even adaptive selection loses
 TREND_TP_PCT = 0.12           # Wider — let momentum run
 TREND_SL_PCT = 0.05           # Moderate — room for brief pullbacks
 TREND_TIME_EXIT_SEC = 480     # 8 min — momentum fades fast
@@ -1465,6 +1466,7 @@ class SkipCounters:
     open_cooldown: int = 0
     game_phase_blocked: int = 0
     circuit_breaker: int = 0
+    buy_side_blocked: int = 0
     signals_processed: int = 0
     def clear(self):
         for k in self.__dict__:
@@ -1742,7 +1744,7 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v15.3 - POLYMARKET US API (ADAPTIVE FADE/TREND + EXEC GUARD)")
+    print(f"TRADE BOT v15.4 - POLYMARKET US API (BUY_NO FADE + EXEC GUARD)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
     print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
@@ -1753,7 +1755,8 @@ def main():
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
     print(f"Book spread max: {MAX_BOOK_SPREAD_PCT*100:.0f}%  Daily loss limit: ${DAILY_LOSS_LIMIT:.2f} (breaker={CIRCUIT_BREAKER_ENABLED})")
     strat_mode = f"ADAPTIVE (cluster>={SIGNAL_CLUSTER_MIN_COUNT} @ {SIGNAL_CLUSTER_RATIO*100:.0f}%→TREND, else→FADE)" if ENABLE_TREND else "FADE only"
-    print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy: {strat_mode}")
+    no_side = " (BUY_NO only)" if FADE_NO_SIDE_ONLY else ""
+    print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy: {strat_mode}{no_side}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
 
@@ -1910,6 +1913,10 @@ def main():
                         if not sig:
                             continue
                         tid, side, mid, z = sig
+                        # BUY_NO only for FADE: BUY-side fades dips which are real game info, not noise
+                        if FADE_NO_SIDE_ONLY and strategy == "FADE" and side in ("BUY", "BUY_LONG"):
+                            skips.buy_side_blocked += 1
+                            continue
                         if BLOCK_PRE_GAME and game_phase == "PRE_GAME":
                             skips.game_phase_blocked += 1
                             continue
