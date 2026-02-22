@@ -37,6 +37,8 @@
 | 2026-02-09 | iowa-maryland | CBB | ? | 0.808 | SKIP | Pre-game, mid > MAX_MID_PRICE=0.65. Monitor accepted (MID_MAX=0.88) but trade.py would reject. |
 | 2026-02-09 | stfpa-chist (pre) | CBB | ? | varies | SKIP (x10) | All pre-game ACCEPT_FADE signals had 5-15% real book spreads. Entry slippage guard rejected all. |
 
+| 2026-02-22 | fair-quin | CBB | ? | 0.270 | YES (LIVE) | BUY_NO at YES=0.260 (bid). 1.34 shares. SL hit after 6min, -$0.1168 (10.8% actual vs 4% target). Peak exec profit 4.1% (ask=0.240 for 60s) but TP 6% unreachable. Trailing stop armed but peak decayed + consecutive reset killed it (see analysis). Game event gap: mid 0.295→0.325 in one 5s poll. |
+
 ## Observations
 
 - OI=91 confirmed too thin (2026-02-07). Need more data points to find the floor.
