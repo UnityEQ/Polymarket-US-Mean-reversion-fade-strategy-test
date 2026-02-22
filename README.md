@@ -7,7 +7,7 @@
 
 # Polymarket US Hunter
 
-A mean-reversion (FADE) trading system for the [Polymarket US](https://polymarket.us) prediction market. Monitors real-time sports market prices via WebSocket, detects price anomalies using z-score analysis, and auto-trades the spikes that revert.
+A mean-reversion (FADE) trading system for the [Polymarket US](https://polymarket.us) prediction market. Monitors real-time sports market prices via WebSocket, detects price anomalies using z-score analysis, and auto-trades the spikes that revert. Uses ESPN live scores to classify game phase and filter out untradeable conditions (pre-game, post-game, late-game close contests).
 
 ## Using Claude AI With This Project
 
@@ -66,9 +66,9 @@ Run the scanner first to see if market conditions are worth trading. If it says 
 
 ## How It Works
 
-**The monitor** connects to the Polymarket US WebSocket and subscribes to all active markets with a single wildcard subscribe (`market_slugs: []`). It streams best-bid/offer data and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase.
+**The monitor** connects to the Polymarket US WebSocket and subscribes to all active markets with a single wildcard subscribe (`market_slugs: []`). It streams best-bid/offer data and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase. A background ESPN thread fetches live scoreboards every 60s to classify each market as PRE_GAME, LIVE, POST_GAME, or UNKNOWN — along with the current game period and score differential.
 
-**The trade bot** tails those CSV files in real-time. When it sees a qualifying FADE signal (spike likely to revert), it places an IOC order through the REST API. It then monitors the position and exits via take-profit (6%), stop-loss (6%), trailing stop, breakeven timeout (10min), or time exit (20min).
+**The trade bot** tails those CSV files in real-time. It only trades the NO side (BUY_NO) — fading YES-price spikes that are likely to revert. When it sees a qualifying signal, it places an IOC order through the REST API. It then monitors the position and exits via take-profit (6%), stop-loss (4%), trailing stop (activates at 2.5%, trails at 2%), breakeven timeout (8min), or time exit (12min). Several safety filters protect against bad entries: pre-game and post-game markets are blocked, late-game close contests are blocked (sport-specific period + score margin thresholds), and a daily loss circuit breaker pauses trading if cumulative losses exceed a configurable limit.
 
 **The scanner** runs its own mini z-score pipeline independently and scores overall market conditions. It tracks whether spikes actually revert (reversion rate) and beeps when conditions support the FADE strategy. It doesn't trade or write files — it's purely a go/no-go indicator.
 
@@ -108,8 +108,8 @@ python basic.py stream <slug>    # Stream live BBO for a single market
 
 | File | Contents |
 |------|----------|
-| `poly_us_triggers_YYYY-MM-DD.csv` | ACCEPT/REJECT signals with z-scores, deltas, spreads |
-| `poly_us_outliers_YYYY-MM-DD.csv` | Outlier signals with FADE/TREND classification |
+| `poly_us_triggers_YYYY-MM-DD.csv` | ACCEPT/REJECT signals with z-scores, deltas, spreads, game phase, ESPN period/score |
+| `poly_us_outliers_YYYY-MM-DD.csv` | Outlier signals with FADE/TREND classification, game phase, ESPN period/score |
 | `poly_us_trades_YYYY-MM-DD.csv` | Executed trades with entry/exit prices and PnL |
 | `monitor-console-log.txt` | Monitor console output |
 | `trade-console-log.txt` | Trade bot console output |
@@ -124,8 +124,19 @@ python monitor.py --ws-test                    # Test wildcard WebSocket subscri
 python monitor.py --ws-test --duration=60      # Same but listen for 60s
 ```
 
+## ESPN Live Score Integration
+
+The monitor fetches live game data from ESPN's free scoreboard API (no auth required) every 60 seconds. This powers three filters that prevent the bot from entering bad trades:
+
+1. **Pre-game blocking** — ESPN says the game hasn't started yet, so price spikes are just noise from thin books. Blocked.
+2. **Post-game blocking** — ESPN says the game is over, so prices are settling to 0 or 1. Blocked.
+3. **Late-game close contest blocking** — Final period of a close game (e.g. 4th quarter NBA, margin <= 10). Price spikes here are real game events, not noise. Blocked.
+
+Covers NBA, CBB (all Division 1), NFL, UFC, and MLS. Games that can't be matched to ESPN data fall through to UNKNOWN and are still tradeable — ESPN only improves filtering when data is available, it never blocks the bot from running.
+
 ## Notes
 
 - This was built and tested during the Polymarket US beta period (early 2026). The platform had low liquidity at the time — thin order books, wide spreads, and limited participants. The FADE strategy works best with higher retail flow creating noise-driven price spikes. Performance should improve as the platform grows.
 - The trade bot defaults to paper mode. Set `LIVE=true` in your environment (or use `tcreds.ps1`) to trade real money.
 - Sports markets on Polymarket US do not return volume data via REST API. The system uses WebSocket `openInterest` as a liquidity proxy instead.
+- The bot only trades the NO side (`FADE_NO_SIDE_ONLY=True`). Fading YES-price dips (buying YES) was structurally unprofitable in live sports — dips are real game information, not noise. BUY_NO fading YES-price spikes has a positive edge.

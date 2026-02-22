@@ -17,7 +17,8 @@ Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/d
 - **Signal pipeline**: BBO update → mid calculation → delta/z-score → percentile gate → severity classification → trade hint (FADE/TREND) → CSV output
 - **Regime detection**: Tracks spike outcomes to classify market as `MEAN_REVERT` or `TRENDING`
 - **Volume refresh thread**: Background thread running every 60s, re-fetches REST volumes and logs OI count statistics
-- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Slug date takes priority for cross-day checks (tomorrow+=PRE_GAME, yesterday-=POST_GAME) since API `startDate` is market creation time, not game time. API `endDate` used only for same-day refinement. Today's games = `UNKNOWN`. Written to `game_phase` column in both CSVs. Timing fields (`start_date`, `end_date`, `game_id`) stored in `STATE.meta[slug]`.
+- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Priority: (1) slug date for cross-day (tomorrow+=PRE_GAME, yesterday-=POST_GAME), (2) ESPN live data for same-day (definitive pre/in/post), (3) API endDate fallback. Written to `game_phase` column + `espn_period` and `espn_score_diff` columns in both CSVs.
+- **ESPN score integration**: `ESPNScoreCache` fetches live scoreboards every 60s from ESPN's free API (no auth). `espn_refresh_thread()` runs in background. Covers NBA, CBB, NFL, UFC, MLS. Only fetches today's date (UTC) — past/future dates already classified by slug-date heuristics. Only populates score details (period, score_diff) for live ("in") games. CBB requires `groups=50&limit=300` params to get all D1 games (default only returns featured). Matches slugs to ESPN games via fuzzy team name matching (`_espn_team_matches`: exact abbreviation, prefix of location/shortDisplayName/abbreviation, substring of displayName for UFC). Known gap: Polymarket uses compressed abbreviations (amercn, bostu, mphs, ohiost) that don't prefix-match ESPN names — these stay UNKNOWN. Slug parser: `parse_slug_parts()` extracts sport/teams/date from slugs like `aec-cbb-duke-mich-2026-02-21`.
 - **Output**: Writes to `poly_us_outliers_YYYY-MM-DD.csv` and `poly_us_triggers_YYYY-MM-DD.csv`
 
 ### `trade.py` — Trade Bot
@@ -27,11 +28,11 @@ Tails the CSV files written by monitor.py and executes trades (paper or live). I
 - **LiveBroker**: Real broker using Ed25519-signed REST calls to `api.polymarket.us`
 - **TailState**: File tailer that reads new CSV lines incrementally
 - **Signal parsing**: `row_to_signal_from_triggers()` and `row_to_signal_from_outliers()` extract (slug, side, mid, z) tuples with delta/spread/volume filters
-- **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase)
+- **Signal quality gates**: Two-stage filtering — Stage 1 in signal parsers (z threshold, delta band, spread, volume, regime), Stage 2 in `try_open()` (signal age, cooldown, z, mid range, cash, game phase, BUY_NO-only filter, ESPN late-game close contest filter)
 - **Adaptive strategy selection**: `SignalTracker` records signal directions per market. `choose_strategy()` counts same-direction signals in a 5-min window — if 75%+ of 10+ signals are same direction, uses TREND (sustained move); otherwise FADE (isolated spike reverts). `extract_signal_direction()` pulls SPIKE/DIP from raw CSV row before parsing. Log line shows `cluster=X/Y(Z%)` for TREND entries.
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel); close fallback also IOC
-- **Exit priority**: TP (8%) → SL (4%) → Trailing Stop (activate 3.5%, trail 2%, peak decays 25%/60s) → Breakeven (10min, 1.5% tolerance) → Time Exit (12min)
+- **Exit priority**: TP (6%) → SL (4%) → Trailing Stop (activate 2.5%, trail 2%, peak decays 25%/60s) → Breakeven (8min, 1.5% tolerance) → Time Exit (12min)
 - **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
 - **Exec price guard**: Before BE and time exits, checks if executable price would cause loss > SL_PCT. If so, defers to SL logic instead — prevents gap losses when mid looks flat but book has moved.
 - **Output**: Writes to `poly_us_trades_YYYY-MM-DD.csv` (includes `strategy` column)
@@ -48,9 +49,11 @@ Standalone pre-flight tool. Runs its own mini z-score pipeline on WebSocket BBO 
 
 ### Data Flow
 ```
+ESPN API (every 60s) → ESPNScoreCache → classify_game_phase() + CSV espn_period/espn_score_diff
 monitor.py (WebSocket BBO + REST discovery) → poly_us_triggers_*.csv / poly_us_outliers_*.csv → trade.py (tail + execute)
-  ├─ classify_game_phase() → game_phase column in CSVs  ↕ poly_mids_latest.json (paper mode)
-  └─ STATE.meta[slug] stores start_date/end_date/game_id from REST
+  ├─ classify_game_phase() → game_phase column (now ESPN-enriched: LIVE/PRE_GAME/POST_GAME)
+  ├─ espn_period + espn_score_diff columns → trade.py late-game close contest filter
+  └─ STATE.meta[slug] stores start_date/end_date/game_id from REST  ↕ poly_mids_latest.json (paper mode)
 scanner.py (WebSocket BBO + REST discovery) → console dashboard + system beep (standalone, no file output)
   └─ MARKET_META stores timing fields → game phase counts in dashboard + pre-game score penalty
 ```
@@ -105,11 +108,11 @@ pip install websocket-client requests cryptography psutil
 
 **trade.py (TREND)**: `ENABLE_TREND=False` (disabled — 5W/31L -$2.87 historically), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection** (inactive): `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only — BUY-side FADE loses structurally on live sports), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `BLOCK_POST_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, `BLOCK_LATE_CLOSE=True` with sport-specific thresholds (CBB: period>=2/margin<=8, NBA: period>=4/margin<=10, NFL: period>=4/margin<=8, MLS: period>=2/margin<=1), tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
-**monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing)
+**monitor.py**: `PolymarketUSClient` (REST discovery + balance), `MonitorState` (global singleton: price history, caches, regime), `MarketWebSocket` (WS streaming + BBO parsing), `ESPNScoreCache` (fetches ESPN scoreboards every 60s, matches to slugs via fuzzy team matching, caches game state/period/score for `classify_game_phase()` and CSV enrichment)
 
 **trade.py**: `PMUSEnums` (API enum constants), `RateLimiter` (token bucket), `RearmTracker` (signal rearm after cooldown), `MarketLossTracker` (per-market loss counting), `SignalTracker` (adaptive strategy selection via signal clustering — records per-market signal directions, `choose_strategy()` returns FADE or TREND based on 5-min window ratio), `Position` (open position state + `strategy` field), `PaperBroker` (simulated fills from CSV/JSON mids), `PolymarketUSAuth` (Ed25519 signing), `LiveBroker` (real order placement + fill detection + book spread guard), `TailState` (incremental CSV tailer), `SkipCounters` (signal rejection stats incl. `game_phase_blocked`, `circuit_breaker`). Key functions: `get_exit_params(strategy)` returns strategy-specific thresholds, `extract_signal_direction()` gets SPIKE/DIP from raw row, `row_to_trend_from_triggers/outliers()` parse TREND signals (enter WITH move), `row_to_signal_from_triggers/outliers()` parse FADE signals (enter AGAINST move).
 

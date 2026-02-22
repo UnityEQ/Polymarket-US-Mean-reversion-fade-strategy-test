@@ -18,6 +18,7 @@ import time
 import math
 import signal
 import json
+import re
 import requests
 import traceback
 import gc
@@ -140,7 +141,18 @@ ENABLE_TRAILING_STOP = True
 SELL_BIAS = False
 FADE_NO_SIDE_ONLY = True      # Only take BUY_NO (NO-side) trades for FADE — BUY-side loses structurally
 BLOCK_PRE_GAME = True         # Block all pre-game entries (consistent losers)
+BLOCK_POST_GAME = True        # Block post-game entries (market settling, no reversion)
 ALLOW_UNKNOWN_PHASE = True    # Allow entries when phase can't be determined
+
+# ESPN-based late-game close contest filter: block when game is in final period AND score is tight
+# Spikes in these conditions are real game events, not noise — FADE loses
+BLOCK_LATE_CLOSE = True
+LATE_GAME_CLOSE = {
+    'cbb': {'period': 2, 'margin': 8},    # 2nd half, within 8 points
+    'nba': {'period': 4, 'margin': 10},   # Q4, within 10 points
+    'nfl': {'period': 4, 'margin': 8},    # Q4, within 8 points
+    'mls': {'period': 2, 'margin': 1},    # 2nd half, within 1 goal
+}
 
 # Book spread rejection: raw (ask-bid)/mid — catches wide books even when slippage guard passes
 MAX_BOOK_SPREAD_PCT = 0.15    # 15% raw book spread — loymd-colg was 22% and gapped through SL
@@ -333,6 +345,23 @@ def load_latest_mids(path: str) -> dict:
     except Exception:
         pass
     return {}
+
+def parse_slug_sport(slug: str) -> Optional[str]:
+    """Extract sport from slug. Returns 'nba', 'cbb', 'nfl', 'mls', 'ufc' or None."""
+    m = re.match(r'^(?:aec|atc)-([a-z]+)-', slug)
+    return m.group(1) if m else None
+
+def is_late_close_contest(game_phase: str, espn_period: int, espn_score_diff: int, slug: str) -> bool:
+    """True if game is in a late-game close contest where FADE is dangerous."""
+    if not BLOCK_LATE_CLOSE or game_phase != "LIVE":
+        return False
+    if espn_period <= 0 or espn_score_diff < 0:
+        return False
+    sport = parse_slug_sport(slug)
+    if not sport or sport not in LATE_GAME_CLOSE:
+        return False
+    t = LATE_GAME_CLOSE[sport]
+    return espn_period >= t['period'] and espn_score_diff <= t['margin']
 
 # =========================
 # Trades CSV
@@ -1467,6 +1496,7 @@ class SkipCounters:
     game_phase_blocked: int = 0
     circuit_breaker: int = 0
     buy_side_blocked: int = 0
+    late_close_blocked: int = 0
     signals_processed: int = 0
     def clear(self):
         for k in self.__dict__:
@@ -1754,6 +1784,7 @@ def main():
     print(f"Z threshold: FADE >= {Z_OPEN} / TREND >= {TREND_Z_OPEN}")
     print(f"Delta: {MIN_DELTA_PCT*100:.1f}%-{MAX_DELTA_PCT*100:.0f}%  Mid: {MIN_MID_PRICE}-{MAX_MID_PRICE}  Age: {MAX_SIGNAL_AGE_SEC}s  Cooldown: {MIN_OPEN_INTERVAL_SEC}s")
     print(f"Book spread max: {MAX_BOOK_SPREAD_PCT*100:.0f}%  Daily loss limit: ${DAILY_LOSS_LIMIT:.2f} (breaker={CIRCUIT_BREAKER_ENABLED})")
+    print(f"ESPN filters: post_game={BLOCK_POST_GAME} late_close={BLOCK_LATE_CLOSE}")
     strat_mode = f"ADAPTIVE (cluster>={SIGNAL_CLUSTER_MIN_COUNT} @ {SIGNAL_CLUSTER_RATIO*100:.0f}%→TREND, else→FADE)" if ENABLE_TREND else "FADE only"
     no_side = " (BUY_NO only)" if FADE_NO_SIDE_ONLY else ""
     print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy: {strat_mode}{no_side}")
@@ -1920,8 +1951,17 @@ def main():
                         if BLOCK_PRE_GAME and game_phase == "PRE_GAME":
                             skips.game_phase_blocked += 1
                             continue
+                        if BLOCK_POST_GAME and game_phase == "POST_GAME":
+                            skips.game_phase_blocked += 1
+                            continue
                         if not ALLOW_UNKNOWN_PHASE and game_phase == "UNKNOWN":
                             skips.game_phase_blocked += 1
+                            continue
+                        # ESPN late-game close contest filter
+                        espn_period = int(to_float(r.get("espn_period"), 0))
+                        espn_score_diff = int(to_float(r.get("espn_score_diff"), -1))
+                        if is_late_close_contest(game_phase, espn_period, espn_score_diff, tid):
+                            skips.late_close_blocked += 1
                             continue
                         if CIRCUIT_BREAKER_ENABLED and broker.realized_pnl <= DAILY_LOSS_LIMIT:
                             skips.circuit_breaker += 1
