@@ -452,7 +452,13 @@ class PMScoreCache:
                     'pm_state': pm_state,
                     'period': period,
                     'score_diff': score_diff,
+                    'elapsed': ev.get("elapsed") or "",
                 }
+                # Enrich STATE.meta with real game start time from events[0]
+                # (REST listing doesn't include gameStartTime — this is the only source)
+                start_time = ev.get("startTime") or ""
+                if start_time and slug in active_slugs:
+                    active_slugs[slug]["game_start_time"] = start_time
             except Exception:
                 errors += 1
             time.sleep(0.1)  # 100ms between requests — ~5-8s for 50-80 slugs
@@ -1409,10 +1415,8 @@ def volume_refresh_thread():
 # -------------------- Polymarket Score Refresh --------------------
 def pm_score_refresh_thread():
     """Background thread: refresh Polymarket native score data every PM_SCORE_REFRESH_SEC."""
-    global PM_SCORE_CACHE
-    PM_SCORE_CACHE = PMScoreCache()
-    # Initial fetch after a short delay to let discovery populate STATE.meta
-    time.sleep(10)
+    # Initial fetch is done synchronously in main() before WebSocket starts.
+    # This thread handles subsequent periodic refreshes only.
     while not STOP.is_set():
         try:
             if STATE.meta and CLIENT:
@@ -1623,6 +1627,13 @@ def run():
     if not STATE.meta:
         logger.error("❌ No markets found!")
         return
+
+    # Synchronous initial PM score fetch — must complete before WebSocket
+    # starts firing signals, otherwise game_phase will be UNKNOWN
+    global PM_SCORE_CACHE
+    PM_SCORE_CACHE = PMScoreCache()
+    if CLIENT:
+        PM_SCORE_CACHE.refresh(STATE.meta, CLIENT)
 
     # Start WebSocket stream
     ws_client = MarketWebSocket(POLYMARKET_KEY_ID, POLYMARKET_SECRET_KEY)

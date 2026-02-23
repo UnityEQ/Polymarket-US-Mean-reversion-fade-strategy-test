@@ -32,7 +32,7 @@ Tails the CSV files written by monitor.py and executes trades (paper or live). I
 - **Adaptive strategy selection**: `SignalTracker` records signal directions per market. `choose_strategy()` counts same-direction signals in a 5-min window — if 75%+ of 10+ signals are same direction, uses TREND (sustained move); otherwise FADE (isolated spike reverts). `extract_signal_direction()` pulls SPIKE/DIP from raw CSV row before parsing. Log line shows `cluster=X/Y(Z%)` for TREND entries.
 - **Fill detection**: Three-layer approach — POST response parsing → order status polling (`_get_order_status`) → portfolio position fallback (`_check_position_exists`)
 - **Order execution**: Entry orders use IOC (Immediate-Or-Cancel); close fallback also IOC
-- **Exit priority**: TP (6%) → SL (4%) → Trailing Stop (activate 2.5%, trail 2%, peak decays 25%/60s) → Breakeven (8min, 1.5% tolerance) → Time Exit (12min)
+- **Exit priority**: TP (6%) → SL (4%) → Trailing Stop (activate 2.5%, trail 2%, peak decays 25%/60s; once `trailing_active=True`, bypasses consecutive/peak gates — only checks pullback) → Breakeven (8min, 1.5% tolerance) → Time Exit (12min)
 - **TP and trailing stop** use `exec_price` from `get_executable_exit_price()` (bid for SELL_LONG, ask for SELL_SHORT) to prevent false profit-taking on inflated mid. **SL, breakeven, time exit** use mid to avoid false triggers from spread noise.
 - **Exec price guard**: Before BE and time exits, checks if executable price would cause loss > SL_PCT. If so, defers to SL logic instead — prevents gap losses when mid looks flat but book has moved.
 - **Output**: Writes to `poly_us_trades_YYYY-MM-DD.csv` (includes `strategy` column)
@@ -65,7 +65,6 @@ scanner.py (WebSocket BBO + REST discovery) → console dashboard + system beep 
 - **poly_us_triggers_YYYY-MM-DD.csv**: ACCEPT/REJECT signals from monitor with z-scores, deltas, spreads
 - **poly_us_outliers_YYYY-MM-DD.csv**: Outlier signals from monitor with FADE/TREND hints
 - **poly_us_trades_YYYY-MM-DD.csv**: Executed trades with entry/exit prices, PnL, fees
-- **todo.txt**: Tasks for the Claude agent
 
 ## Running
 
@@ -108,7 +107,7 @@ pip install websocket-client requests cryptography psutil
 
 **trade.py (TREND)**: `ENABLE_TREND=False` (disabled — 5W/31L -$2.87 historically), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection** (inactive): `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00`, `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `BLOCK_POST_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, `BLOCK_LATE_CLOSE=True` with sport-specific thresholds (CBB: period>=2/margin<=8, NBA: period>=4/margin<=10, NFL: period>=4/margin<=8, MLS: period>=2/margin<=1), tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00` (session cumulative), `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `BLOCK_POST_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, `BLOCK_LATE_CLOSE=True` with sport-specific thresholds (CBB: period>=2/margin<=8, NBA: period>=4/margin<=10, NFL: period>=4/margin<=8, MLS: period>=2/margin<=1), tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
@@ -206,7 +205,7 @@ Observations gathered from live runs and log analysis. Use these to identify pat
 - **TREND trailing stop is the best exit for momentum** (2026-02-21): Both trailing stop exits were wins (+$0.049, +$0.031), peaking at 10% and 7.6%. `[ACTED]` Lowered `TREND_TRAILING_ACTIVATE_PCT` from 3.5% to 2.5% to capture partial profits sooner before game events reverse.
 - **FADE breakeven exits dominate during flat pre-game/early-game** (2026-02-21): Feb 20 session: 7/9 trades hit breakeven with avg -$0.015 fee drag each. Markets simply don't move enough for FADE — price sits flat then exits at a loss from round-trip fees.
 - **TREND 3W/3L is better hit rate than FADE 1W/8L but worse risk/reward** (2026-02-21): TREND avg win $0.083 vs avg loss $0.142. Still underwater on risk/reward due to gap losses. Need the trailing stop activation to capture more partial wins.
-- **Trailing stop peak decay kills protection on marginal activations** (2026-02-22): fair-quin BUY_NO peaked at 4.1% exec profit (ask=0.240 for 60s). Trailing armed (>2.5%), but flat exec_price meant no pullback to fire it. After 60s, peak decayed 25% to 3.08%. When ask jumped 0.240→0.270 in one tick, `consecutive_profit_mids` reset to 0 — both firing conditions failed. Price continued to SL at -10.8%. The `TRAILING_MIN_CONSECUTIVE=2` requirement prevents the stop from firing on sudden reversals after extended flat profitable periods.
+- **Trailing stop peak decay kills protection on marginal activations** (2026-02-22): `[ACTED]` fair-quin BUY_NO peaked at 4.1% exec profit (ask=0.240 for 60s). Trailing armed (>2.5%), but flat exec_price meant no pullback to fire it. After 60s, peak decayed 25% to 3.08%. When ask jumped 0.240→0.270 in one tick, `consecutive_profit_mids` reset to 0 — both firing conditions failed. Price continued to SL at -10.8%. Fix: once `pos.trailing_active=True`, `check_trailing_stop()` bypasses the consecutive/peak-threshold gates and only checks the pullback condition (`profit <= peak - stop_pct`).
 - **CBB first-half live events still cause gap-through-SL** (2026-02-22): fair-quin period=1, score_diff=2. YES gapped from mid 0.295→0.325 in one 5s poll (game event). SL triggered at 7.5% loss (mid), filled at 9.6% (ask). Same pattern as all prior game-event SL losses, even in first half of a close game.
 
 ### MIN_VOLUME Tuning Log
@@ -231,7 +230,6 @@ Detailed fill/no-fill log with per-trade data in [`min_volume_log.md`](min_volum
 - **BBO**: `GET /v1/markets/{slug}/bbo` — returns BBO data but response format may not match expected `marketDataLite.bestBid/bestAsk` fields. Used as fallback only; order book endpoint is more reliable.
 - **WebSocket wildcard subscribe**: `market_slugs: []` subscribes to ALL active markets in one message. Server sends an initial snapshot burst (one message per market) then streams live BBO updates. Response uses camelCase (`marketDataLite`, `marketSlug`, `requestId`). Verified 2026-02-20: 216 unique slugs received (101.4% of REST-discovered 213, includes markets filtered by discovery).
 - WebSocket `MARKET_DATA_LITE` does NOT include `volume24hr` — only `sharesTraded` (lifetime) and `openInterest`. Volume requires REST polling (which returns nothing for sports markets).
-
 
 ## API Documentation
 
