@@ -65,6 +65,7 @@ scanner.py (WebSocket BBO + REST discovery) → console dashboard + system beep 
 - **poly_us_triggers_YYYY-MM-DD.csv**: ACCEPT/REJECT signals from monitor with z-scores, deltas, spreads
 - **poly_us_outliers_YYYY-MM-DD.csv**: Outlier signals from monitor with FADE/TREND hints
 - **poly_us_trades_YYYY-MM-DD.csv**: Executed trades with entry/exit prices, PnL, fees
+- **poly_us_blowout_YYYY-MM-DD.csv**: Late-game blowout snapshots — logs `(slug, sport, period, score, elapsed, score_diff, yes_mid, implied_leader_prob)` every 60s for games matching sport-specific blowout thresholds (NBA: P3+ diff>=15, CBB: P2+ diff>=12, NFL: P3+ diff>=14, MLS: P2+ diff>=2). `implied_leader_prob = max(yes_mid, 1-yes_mid)` — if consistently below ~0.90 for true blowouts, there's a tradeable edge for an end-of-game convergence strategy.
 
 ## Running
 

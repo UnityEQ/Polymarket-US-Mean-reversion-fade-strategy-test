@@ -111,6 +111,7 @@ python basic.py stream <slug>    # Stream live BBO for a single market
 | `poly_us_triggers_YYYY-MM-DD.csv` | ACCEPT/REJECT signals with z-scores, deltas, spreads, game phase, period/score |
 | `poly_us_outliers_YYYY-MM-DD.csv` | Outlier signals with FADE/TREND classification, game phase, period/score |
 | `poly_us_trades_YYYY-MM-DD.csv` | Executed trades with entry/exit prices and PnL |
+| `poly_us_blowout_YYYY-MM-DD.csv` | Late-game blowout snapshots for end-of-game strategy research |
 | `monitor-console-log.txt` | Monitor console output |
 | `trade-console-log.txt` | Trade bot console output |
 | `scanner-console-log.txt` | Scanner console output |

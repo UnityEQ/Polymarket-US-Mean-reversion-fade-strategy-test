@@ -129,6 +129,7 @@ SHARES_ACTIVITY_MIN   = 50  # Lowered: Min lifetime shares for "active" if volum
 today = time.strftime("%Y-%m-%d")
 OUTLIER_CSV  = f"poly_us_outliers_{today}.csv"
 TRIGGERS_CSV = f"poly_us_triggers_{today}.csv"
+BLOWOUT_CSV  = f"poly_us_blowout_{today}.csv"
 
 CSV_LOCK = threading.RLock()
 
@@ -453,6 +454,7 @@ class PMScoreCache:
                     'period': period,
                     'score_diff': score_diff,
                     'elapsed': ev.get("elapsed") or "",
+                    '_raw_score': ev.get("score") or "",
                 }
                 # Enrich STATE.meta with real game start time from events[0]
                 # (REST listing doesn't include gameStartTime — this is the only source)
@@ -513,6 +515,94 @@ class PMScoreCache:
 
 
 PM_SCORE_CACHE: Optional[PMScoreCache] = None
+
+# -------------------- Blowout Monitoring --------------------
+# Logs late-game blowouts to CSV for strategy research.
+# Tracks whether the market has priced in the likely winner.
+
+BLOWOUT_HEADER = [
+    "ts_iso", "slug", "sport", "period", "score", "elapsed",
+    "score_diff", "yes_mid", "implied_leader_prob"
+]
+
+# Sport-specific thresholds: (min_period, min_score_diff)
+# Only log when game is deep enough that the lead is meaningful.
+BLOWOUT_THRESHOLDS = {
+    'nba': (3, 15),   # 3rd quarter+, 15+ points
+    'cbb': (2, 12),   # 2nd half, 12+ points
+    'nfl': (3, 14),   # 3rd quarter+, 2+ TDs
+    'mls': (2, 2),    # 2nd half, 2+ goals
+}
+
+_blowout_header_written = False
+
+def log_blowout_opportunities():
+    """Check live games for blowout conditions and log to CSV for strategy research."""
+    global _blowout_header_written
+    if not PM_SCORE_CACHE:
+        return
+    with PM_SCORE_CACHE._lock:
+        cache_snapshot = dict(PM_SCORE_CACHE._cache)
+
+    rows = []
+    now_iso = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    for slug, data in cache_snapshot.items():
+        if data['pm_state'] != 'in':
+            continue
+        sp = parse_slug_parts(slug)
+        if not sp:
+            continue
+        sport = sp['sport']
+        thresholds = BLOWOUT_THRESHOLDS.get(sport)
+        if not thresholds:
+            continue
+        min_period, min_diff = thresholds
+        period = data['period']
+        score_diff = data['score_diff']
+        if period < min_period or score_diff < min_diff:
+            continue
+        # Get YES mid from STATE.mid_cache
+        mid_entry = STATE.mid_cache.get(slug)
+        if not mid_entry:
+            continue
+        yes_mid = mid_entry[0]
+        implied_leader = max(yes_mid, 1.0 - yes_mid)
+        rows.append({
+            'ts_iso': now_iso,
+            'slug': slug,
+            'sport': sport,
+            'period': period,
+            'score': data.get('_raw_score', ''),
+            'elapsed': data.get('elapsed', ''),
+            'score_diff': score_diff,
+            'yes_mid': f"{yes_mid:.4f}",
+            'implied_leader_prob': f"{implied_leader:.4f}",
+        })
+
+    if not rows:
+        return
+
+    with CSV_LOCK:
+        try:
+            write_header = not _blowout_header_written and not os.path.exists(BLOWOUT_CSV)
+            with open(BLOWOUT_CSV, 'a', newline='') as f:
+                w = csv.DictWriter(f, fieldnames=BLOWOUT_HEADER)
+                if write_header:
+                    w.writeheader()
+                    _blowout_header_written = True
+                elif not _blowout_header_written:
+                    _blowout_header_written = True
+                for row in rows:
+                    w.writerow(row)
+        except Exception as e:
+            logger.error(f"[BLOWOUT] CSV write error: {e}")
+
+    for row in rows:
+        logger.info(
+            f"[BLOWOUT] {row['slug']} | {row['sport'].upper()} P{row['period']} "
+            f"diff={row['score_diff']} elapsed={row['elapsed']} | "
+            f"yes_mid={row['yes_mid']} implied_leader={row['implied_leader_prob']}"
+        )
 
 
 def classify_game_phase(meta: dict, slug: str) -> str:
@@ -1421,6 +1511,7 @@ def pm_score_refresh_thread():
         try:
             if STATE.meta and CLIENT:
                 PM_SCORE_CACHE.refresh(STATE.meta, CLIENT)
+                log_blowout_opportunities()
         except Exception as e:
             logger.error(f"[PM-SCORE] Refresh error: {e}")
         for _ in range(PM_SCORE_REFRESH_SEC):
