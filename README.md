@@ -133,7 +133,7 @@ python monitor.py --ws-test --duration=60      # Same but listen for 60s
 
 ## Live Score Integration
 
-The monitor fetches live game data from Polymarket's own market detail endpoint (`GET /v1/market/slug/{slug}` → `events[0]`) every 60 seconds. This is a 1:1 slug match with zero external dependencies — no team mapping or fuzzy matching needed. It powers three filters that prevent the bot from entering bad trades:
+The monitor fetches live game data from Polymarket's own market detail endpoint (`GET /v1/market/slug/{slug}` → `events[0]`) every 60 seconds. This is a 1:1 slug match with zero external dependencies — no team mapping or fuzzy matching needed. It uses your machine's **local time** (not UTC) for slug date comparisons — this is important because after ~7 PM ET (midnight UTC), UTC rolls to the next day which would incorrectly filter tonight's live games as stale. It powers three filters that prevent the bot from entering bad trades:
 
 1. **Pre-game blocking** — Game hasn't started yet, so price spikes are just noise from thin books. Blocked.
 2. **Post-game blocking** — Game is over, so prices are settling to 0 or 1. Blocked.

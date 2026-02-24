@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Polymarket US CLOB Hunter — a two-process Python system for monitoring and trading on the Polymarket US (CFTC-regulated) prediction market platform. API docs: https://docs.polymarket.us/api/introduction
+Polymarket US CLOB Hunter — a multi-process Python system for monitoring and trading on the Polymarket US (CFTC-regulated) prediction market platform. API docs: https://docs.polymarket.us/api/introduction
 
-## Architecture (Two Processes)
+## Architecture
 
 ### `monitor.py` — Market Monitor
 Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/dips) using z-score analysis and writes signals to CSV files that the trade bot consumes.
@@ -17,8 +17,8 @@ Real-time market data ingestion via WebSocket. Detects price anomalies (spikes/d
 - **Signal pipeline**: BBO update → mid calculation → delta/z-score → percentile gate → severity classification → trade hint (FADE/TREND) → CSV output
 - **Regime detection**: Tracks spike outcomes to classify market as `MEAN_REVERT` or `TRENDING`
 - **Volume refresh thread**: Background thread running every 60s, re-fetches REST volumes and logs OI count statistics
-- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Priority: (1) slug date for cross-day (tomorrow+=PRE_GAME, yesterday-=POST_GAME), (2) Polymarket native score data for same-day (definitive pre/in/post), (3) gameStartTime from meta (if in future → PRE_GAME), (4) API endDate fallback. Written to `game_phase` column + `pm_period` and `pm_score_diff` columns in both CSVs.
-- **Polymarket score integration**: `PMScoreCache` fetches live game data every 60s from Polymarket's own `GET /v1/market/slug/{slug}` endpoint → `events[0]` fields (`live`, `ended`, `period`, `score`). `pm_score_refresh_thread()` runs in background. Covers NBA, CBB, NFL, UFC, MLS. Only fetches today's date (UTC) — past/future dates already classified by slug-date heuristics. 1:1 slug match — no team mapping or fuzzy matching needed. Rate limited at 100ms between requests (~5-8s per cycle for 50-80 slugs). Slug parser: `parse_slug_parts()` extracts sport/teams/date from slugs like `aec-cbb-duke-mich-2026-02-21`.
+- **Game phase classification**: `classify_game_phase()` returns `PRE_GAME`/`LIVE`/`POST_GAME`/`UNKNOWN`. Uses **local date** (not UTC) for slug date comparisons — slug dates represent US local dates, and after ~7 PM ET (midnight UTC) the UTC date rolls forward which would incorrectly classify tonight's live games as POST_GAME. Priority: (1) slug date for cross-day (tomorrow+=PRE_GAME, yesterday-=POST_GAME), (2) Polymarket native score data for same-day (definitive pre/in/post), (3) gameStartTime from meta (if in future → PRE_GAME), (4) API endDate fallback. Written to `game_phase` column + `pm_period` and `pm_score_diff` columns in both CSVs.
+- **Polymarket score integration**: `PMScoreCache` fetches live game data every 60s from Polymarket's own `GET /v1/market/slug/{slug}` endpoint → `events[0]` fields (`live`, `ended`, `period`, `score`). `pm_score_refresh_thread()` runs in background. Covers NBA, CBB, NFL, UFC, MLS. Only fetches today's date (local time) — past/future dates already classified by slug-date heuristics. 1:1 slug match — no team mapping or fuzzy matching needed. Rate limited at 100ms between requests (~5-8s per cycle for 50-80 slugs). Slug parser: `parse_slug_parts()` extracts sport/teams/date from slugs like `aec-cbb-duke-mich-2026-02-21`.
 - **Output**: Writes to `poly_us_outliers_YYYY-MM-DD.csv` and `poly_us_triggers_YYYY-MM-DD.csv`
 
 ### `trade.py` — Trade Bot
@@ -104,15 +104,15 @@ pip install websocket-client requests cryptography psutil
 
 ## Key Configuration Constants
 
-**monitor.py**: `BASE_SPIKE_THRESHOLD=0.003`, `BASE_Z_SCORE_MIN=0.8`, `WATCH_Z=1.5`, `ALERT_Z=3.0`, `MAX_SPREAD_PCT=0.15`, `MID_MIN=0.12`, `MID_MAX=0.55`, `HISTORY_LEN=50`, `V24_MIN=10`, `SHARES_ACTIVITY_MIN=50`, `COOLDOWN_PER_SLUG=60`, `VOLUME_REFRESH_SEC=60`, `MARKET_REFRESH_SEC=300`
+**monitor.py**: `MAX_MARKETS=1500`, `BASE_SPIKE_THRESHOLD=0.003`, `BASE_Z_SCORE_MIN=0.8`, `WATCH_Z=1.5`, `ALERT_Z=3.0`, `MAX_SPREAD_PCT=0.15`, `MID_MIN=0.12`, `MID_MAX=0.55`, `HISTORY_LEN=50`, `V24_MIN=10`, `SHARES_ACTIVITY_MIN=50`, `COOLDOWN_PER_SLUG=60`, `VOLUME_REFRESH_SEC=60`, `MARKET_REFRESH_SEC=300`
 
 **trade.py (FADE)**: `Z_OPEN=4.0`, `Z_OPEN_OUTLIER=4.5`, `TP_PCT=0.06`, `SL_PCT=0.04`, `BREAKEVEN_EXIT_SEC=480`, `BREAKEVEN_TOLERANCE=0.015`, `TIME_EXIT_SEC_PRIMARY=720`, `TRAILING_ACTIVATE_PCT=0.025`, `TRAILING_STOP_PCT=0.02`, `TRAILING_PEAK_DECAY_SEC=60`, `TRAILING_PEAK_DECAY_RATE=0.25`, `TRAILING_MIN_CONSECUTIVE=2`
 
-**trade.py (TREND)**: `ENABLE_TREND=False` (disabled — 5W/31L -$2.87 historically), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection** (inactive): `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
+**trade.py (TREND)**: `ENABLE_TREND=False` (disabled — 5W/31L -$2.87 historically), `TREND_Z_OPEN=3.5`, `TREND_TP_PCT=0.12`, `TREND_SL_PCT=0.05`, `TREND_TIME_EXIT_SEC=480`, `TREND_BREAKEVEN_EXIT_SEC=240`, `TREND_BREAKEVEN_TOLERANCE=0.01`, `TREND_TRAILING_ACTIVATE_PCT=0.025`, `TREND_TRAILING_STOP_PCT=0.02`. **Adaptive selection** (inactive): `SIGNAL_CLUSTER_WINDOW_SEC=300`, `SIGNAL_CLUSTER_MIN_COUNT=10`, `SIGNAL_CLUSTER_RATIO=0.75`
 
 **trade.py (CONVERGENCE)**: `ENABLE_CONVERGENCE=True`, `CONV_MAX_CONCURRENT=2`, `CONV_MIN_OBSERVATIONS=3`, `CONV_MIN_IMPLIED_PROB=0.70`, `CONV_MAX_IMPLIED_PROB=0.90`, `CONV_CASH_FRAC=0.08`, `CONV_CASH_MIN=1.0`, `CONV_CASH_MAX=5.0`, `CONV_GAME_OVER_NO_ROW_SEC=240`, `CONV_EMERGENCY_SL_PCT=0.15`, `CONV_MAX_HOLD_SEC=7200`. Per-sport thresholds (`CONV_THRESHOLDS`): NBA P4 diff>=20 max_implied=0.88, CBB P2 diff>=18 max_implied=0.88, NFL P4 diff>=21 max_implied=0.88, MLS P2 diff>=3 max_implied=0.88.
 
-**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_REARM_SEC=300`, `MAX_LOSSES_PER_MARKET=2`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00` (session cumulative), `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `BLOCK_POST_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, `BLOCK_LATE_CLOSE=True` with sport-specific thresholds (CBB: period>=2/margin<=8, NBA: period>=4/margin<=10, NFL: period>=4/margin<=8, MLS: period>=2/margin<=1), tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
+**trade.py (shared)**: `MAX_CONCURRENT_POS=3`, `SIZED_CASH_FRAC=0.10`, `MAX_SIGNAL_AGE_SEC=15`, `MIN_DELTA_PCT=0.015`, `MAX_DELTA_PCT=0.15`, `MIN_OPEN_INTERVAL_SEC=90`, `MIN_REARM_SEC=300`, `MAX_LOSSES_PER_MARKET=2`, `MIN_MID_PRICE=0.25`, `MAX_MID_PRICE=0.40`, `FADE_NO_SIDE_ONLY=True` (BUY_NO only), `MIN_VOLUME=10`, `SLIPPAGE_TOLERANCE_PCT=3.0`, `CROSS_BUFFER=0.005`, `MAX_BOOK_SPREAD_PCT=0.15`, `DAILY_LOSS_LIMIT=-3.00` (session cumulative), `CIRCUIT_BREAKER_ENABLED=True`, `ORDER_TIMEOUT_SEC=15`, `FILL_POLL_ATTEMPTS=10`, `CLOSE_RETRY_ATTEMPTS=3`, `BLOCK_PRE_GAME=True`, `BLOCK_POST_GAME=True`, `ALLOW_UNKNOWN_PHASE=True`, `BLOCK_LATE_CLOSE=True` with sport-specific thresholds (CBB: period>=2/margin<=8, NBA: period>=4/margin<=10, NFL: period>=4/margin<=8, MLS: period>=2/margin<=1), tiered spread limits by z-score (`MAX_SPREAD_BASE=0.10/MID=0.13/HIGH=0.16`). Entry slippage guard capped at `min(TP_PCT/2, 3%)`. Raw book spread guard rejects if `(ask-bid)/mid > MAX_BOOK_SPREAD_PCT`. Daily loss circuit breaker pauses new entries when `realized_pnl <= DAILY_LOSS_LIMIT`. **Exec price guard**: BE and time exits check executable price before closing — if exec loss would exceed SL_PCT, defers to SL logic instead of closing at a gapped price. Order placement logs `[ORDER]` with intent, price.value, qty, cost/share, IOC, bbo tag. Fill polling logs each attempt's state or 404.
 
 ## Class Index
 
@@ -162,6 +162,7 @@ pip install websocket-client requests cryptography psutil
 - `json.dumps` is monkey-patched in trade.py for deterministic serialization (sorted keys, no spaces) — required for signature verification.
 - WebSocket message format varies (snake_case vs camelCase, nested vs flat) — `_handle_single_update()` has extensive fallback parsing.
 - CSV files use daily date suffixes and are referenced by both processes simultaneously (RLock in monitor, file tailer in trade).
+- **Slug dates use local time, not UTC**: Market slugs encode dates in US local time (e.g. `aec-nba-sa-det-2026-02-23`). All slug-date comparisons in monitor.py use `datetime.now()` (local) instead of `datetime.now(timezone.utc)`. After ~7 PM ET (midnight UTC), UTC rolls to the next day — using UTC would incorrectly filter live evening games as "yesterday/stale" or classify them as POST_GAME. Three affected locations: `discover()` stale filter, `PMScoreCache.refresh()` today_str, and `classify_game_phase()` today_start.
 
 ### Liquidity Pipeline (cross-file concern)
 **Sports markets do NOT return volume fields** (`volume24hr`, `volumeNum`, `volume` are absent from both listing and detail REST responses). Liquidity is determined from WebSocket `MARKET_DATA_LITE` data instead:
@@ -179,6 +180,7 @@ The `_extract_volume()` helper only searches REST fields — its "no REST volume
 Track observed bugs/concerns here. Remove entries once fixed and verified.
 
 - **OI wipe on discover refresh**: `discover(refresh=True)` replaces `STATE.meta` dicts, wiping WS-populated `open_interest` and `shares_traded` values. OI counts drop from 18/49 → 1/49 and slowly rebuild as new WS messages arrive. During active games, this 5-min refresh window could cause valid signals to get `REJECT_VOLUME`. Fix: preserve OI/sharesTraded values across refresh, or merge new meta into existing instead of replacing.
+- **scanner.py still uses UTC for slug date comparisons**: `classify_game_phase()` (line ~179) and `discover_markets()` (line ~287) in scanner.py still use `datetime.now(timezone.utc)` — same bug that was fixed in monitor.py. After ~7 PM ET, scanner will misclassify tonight's live games as POST_GAME and apply pre-game penalty to composite scores. Fix: apply same local-date fix as monitor.py.
 
 ## Market Intelligence
 

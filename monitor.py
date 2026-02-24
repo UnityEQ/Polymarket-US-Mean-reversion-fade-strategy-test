@@ -114,7 +114,7 @@ SPREAD_MAX_SAFE       = 0.20
 SPREAD_MAX_TREND      = 0.25
 POSITION_SIZE_FACTOR  = 0.01
 
-MAX_MARKETS = 500
+MAX_MARKETS = 1500
 
 # Liquidity filters
 MIN_BID_SIZE          = 1.0
@@ -404,7 +404,8 @@ class PMScoreCache:
 
     def refresh(self, active_slugs: dict, client: 'PolymarketUSClient'):
         """Fetch market details for today's sports slugs and extract score data."""
-        today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        # Use local date — slug dates are US local dates, not UTC
+        today_str = datetime.now().strftime('%Y-%m-%d')
         slugs_to_fetch: List[str] = []
         for slug in active_slugs:
             sp = parse_slug_parts(slug)
@@ -616,8 +617,11 @@ def classify_game_phase(meta: dict, slug: str) -> str:
     5. UNKNOWN
     """
     from datetime import timedelta
-    now_utc = datetime.now(timezone.utc)
-    today_start = now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Use local date — slug dates are US local dates, not UTC.
+    # After ~7 PM ET (midnight UTC), UTC rolls to next day which would
+    # incorrectly classify tonight's live games as POST_GAME.
+    now_local = datetime.now()
+    today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     tomorrow_start = today_start + timedelta(days=1)
 
     # Step 1: Slug date for coarse classification (reliable for cross-day)
@@ -648,7 +652,7 @@ def classify_game_phase(meta: dict, slug: str) -> str:
             start_dt = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
             if start_dt.tzinfo is None:
                 start_dt = start_dt.replace(tzinfo=timezone.utc)
-            if now_utc < start_dt:
+            if datetime.now(timezone.utc) < start_dt:
                 return "PRE_GAME"
         except (ValueError, TypeError):
             pass
@@ -660,7 +664,7 @@ def classify_game_phase(meta: dict, slug: str) -> str:
             end_dt = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
             if end_dt.tzinfo is None:
                 end_dt = end_dt.replace(tzinfo=timezone.utc)
-            if now_utc > end_dt:
+            if datetime.now(timezone.utc) > end_dt:
                 return "POST_GAME"
         except (ValueError, TypeError):
             pass
@@ -770,7 +774,10 @@ def discover(refresh: bool = False):
         else:
             logger.info(f"[DIAG] No date/timing fields found in market response. Keys: {all_keys[:20]}")
 
-    today_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Use local date (not UTC) — slug dates are US local dates.
+    # After ~7 PM ET (midnight UTC), UTC rolls to next day, which would
+    # incorrectly filter tonight's live games as "yesterday/stale".
+    today_dt = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     fresh_markets = []
     stale_count = 0
     for m in markets:
