@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trade.py - v15.4 - POLYMARKET US API - BUY_NO FADE + EXEC GUARD
+trade.py - v15.5 - POLYMARKET US API - BUY_NO FADE + CONVERGENCE
 CHANGES FROM v14.5:
   - Entry orders now use IOC (Immediate-Or-Cancel) instead of GTC. GTC
     orders were sitting unfilled on the book because limit prices didn't
@@ -199,6 +199,26 @@ BALANCE_SYNC_INTERVAL_SEC = 60.0
 CLOSE_RETRY_ATTEMPTS = 3
 CLOSE_RETRY_DELAY_SEC = 2.0
 
+# CONVERGENCE strategy: end-of-game blowout trading
+ENABLE_CONVERGENCE = True
+CONV_MAX_CONCURRENT = 2          # Separate limit for convergence trades
+CONV_MIN_OBSERVATIONS = 3        # Sustained blowout: 3 rows = ~3 min of data
+CONV_MIN_IMPLIED_PROB = 0.70     # Don't buy below 70% (market too uncertain)
+CONV_MAX_IMPLIED_PROB = 0.90     # Don't buy above 90% (already priced in)
+CONV_CASH_FRAC = 0.08
+CONV_CASH_MIN = 1.0
+CONV_CASH_MAX = 5.0
+CONV_GAME_OVER_NO_ROW_SEC = 240  # 4 min with no blowout row → game over
+CONV_EMERGENCY_SL_PCT = 0.15     # 15% safety stop (should never fire)
+CONV_MAX_HOLD_SEC = 7200         # 2 hour absolute timeout
+# Stricter than monitor's BLOWOUT_THRESHOLDS for actual trading
+CONV_THRESHOLDS = {
+    'nba': {'period': 4, 'min_diff': 20, 'max_implied': 0.88},
+    'cbb': {'period': 2, 'min_diff': 18, 'max_implied': 0.88},
+    'nfl': {'period': 4, 'min_diff': 21, 'max_implied': 0.88},
+    'mls': {'period': 2, 'min_diff': 3,  'max_implied': 0.88},
+}
+
 RATE_LIMIT_CALLS = 40
 RATE_LIMIT_WINDOW_SEC = 1.0
 
@@ -245,6 +265,7 @@ MAX_TAILER_LINES = 100
 TRIGGERS_CSV = os.getenv("TRIGGERS_CSV", f"poly_us_triggers_{date.today().isoformat()}.csv")
 OUTLIERS_CSV = os.getenv("OUTLIERS_CSV", f"poly_us_outliers_{date.today().isoformat()}.csv")
 TRADES_CSV = os.getenv("TRADES_CSV", f"poly_us_trades_{date.today().isoformat()}.csv")
+BLOWOUT_CSV = os.getenv("BLOWOUT_CSV", f"poly_us_blowout_{date.today().isoformat()}.csv")
 
 DEBUG_REJECTIONS = os.getenv("DEBUG_REJECTIONS", "false").lower() == "true"
 
@@ -546,6 +567,13 @@ def check_trailing_stop(pos: Position, current: float, is_stale: bool = False,
 
 def get_exit_params(strategy: str) -> dict:
     """Return exit thresholds for the given strategy."""
+    if strategy == "CONVERGENCE":
+        return {
+            "tp": 1.0, "sl": CONV_EMERGENCY_SL_PCT,
+            "time": CONV_MAX_HOLD_SEC, "be_sec": CONV_MAX_HOLD_SEC,
+            "be_tol": 0.0,
+            "trail_activate": 1.0, "trail_stop": 1.0,
+        }
     if strategy == "TREND":
         return {
             "tp": TREND_TP_PCT, "sl": TREND_SL_PCT,
@@ -656,6 +684,37 @@ class PaperBroker:
             "pnl": "", "cash_after": f"{self.cash:.2f}",
             "reason": "", "fee": f"{fee_open:.4f}", "z_score": f"{z_score:.2f}",
             "strategy": strategy
+        })
+        return pos
+
+    def open_convergence(self, tid: str, side: str, mid: float, entry_price: float) -> Optional[Position]:
+        """Open a convergence position — bypasses should_open() price range checks."""
+        if tid in self.positions or self.is_blocked(tid):
+            return None
+        cash_to_use = _conv_sized_cash(self)
+        if cash_to_use < CONV_CASH_MIN or not (0 < mid < 1):
+            return None
+        cost_per_share = entry_price
+        qty = cash_to_use / max(cost_per_share, 1e-9)
+        notional = qty * cost_per_share
+        fee_open = self.fee_for_notional(notional)
+        total_cost = notional + fee_open
+        if total_cost > self.cash:
+            return None
+        self.cash -= total_cost
+        pos = Position(
+            tid=tid, side=side, qty=qty, entry_mid=mid,
+            entry_ts=now(), fee_open=fee_open, cost_basis=total_cost,
+            fill_price=mid, z_score=0.0, strategy="CONVERGENCE"
+        )
+        self.positions[tid] = pos
+        self._trade_count += 1
+        append_trade({
+            "ts": utc_ts(), "event": "OPEN", "slug": tid, "side": side,
+            "qty": f"{qty:.4f}", "entry_mid": f"{mid:.6f}", "exit_mid": "",
+            "pnl": "", "cash_after": f"{self.cash:.2f}",
+            "reason": "", "fee": f"{fee_open:.4f}", "z_score": "0.00",
+            "strategy": "CONVERGENCE"
         })
         return pos
 
@@ -1303,6 +1362,84 @@ class LiveBroker:
         logger.info(f"[OPEN] {strategy} {side} on {tid} at {actual_fill_price:.4f} (order {order_id[:12]}...)")
         return pos
 
+    def open_convergence(self, tid: str, side: str, mid: float, entry_price: float) -> Optional[Position]:
+        """Open a convergence position — bypasses should_open() price range checks."""
+        if tid in self.positions or self.is_blocked(tid):
+            return None
+        cash_to_use = _conv_sized_cash(self)
+        if cash_to_use < CONV_CASH_MIN or not (0 < mid < 1):
+            return None
+        if not self._validate_market(tid, known_mid=mid):
+            return None
+        bbo_bid, bbo_ask, _book_data = self._extract_book_bbo(tid)
+        if self._is_long_yes(side):
+            if bbo_ask > 0:
+                order_price = min(bbo_ask + CROSS_BUFFER, 0.999)
+            else:
+                order_price = min(mid * (1.0 + SLIPPAGE_TOLERANCE_PCT / 100.0), 0.999)
+            cost_per_share = order_price
+        else:
+            if bbo_bid > 0:
+                order_price = max(bbo_bid - CROSS_BUFFER, 0.001)
+            else:
+                order_price = max(mid * (1.0 - SLIPPAGE_TOLERANCE_PCT / 100.0), 0.001)
+            cost_per_share = 1.0 - order_price
+        order_price = max(0.001, min(0.999, order_price))
+        qty = cash_to_use / max(cost_per_share, 1e-9)
+        estimated_notional = qty * cost_per_share
+        estimated_fee = self.fee_for_notional(estimated_notional)
+        if estimated_notional + estimated_fee > self.cash:
+            return None
+        intent = self._side_to_open_intent(side)
+        order_body = self._build_order_body(tid, intent, order_price, qty, tif=PMUSEnums.IOC)
+        bbo_tag = f"bbo={bbo_bid:.3f}/{bbo_ask:.3f}" if (bbo_bid > 0 or bbo_ask > 0) else "bbo=NONE"
+        logger.info(f"[ORDER] CONV {intent} {tid} | mid={mid:.4f} {bbo_tag} price.value={order_price:.3f} qty={qty:.2f} cost={cost_per_share:.4f}/sh ${cash_to_use:.2f} IOC")
+        self._debug_liquidity(tid, intent, order_price, qty, book=_book_data)
+        resp = self._api_post("/v1/orders", order_body)
+        if not resp:
+            logger.error(f"[CONV] Order POST returned no response for {tid}")
+            return None
+        order_id = self._extract_order_id(resp)
+        if not order_id:
+            logger.error(f"[CONV] No order ID returned: {resp}")
+            return None
+        filled, fill_price = self._parse_fill_from_response(resp)
+        if filled:
+            logger.info(f"[CONV] Order {order_id[:12]}... filled immediately at {fill_price:.4f}")
+        else:
+            logger.info(f"[CONV] Order {order_id[:12]}... placed IOC, waiting for fill...")
+            filled, fill_price = self._wait_for_fill(order_id, tid)
+        if not filled:
+            logger.warning(f"[CONV] Order {order_id[:12]}... not filled for {tid}")
+            return None
+        actual_fill_price = fill_price if fill_price > 0 else mid
+        if self._is_long_yes(side):
+            actual_cost_per_share = actual_fill_price
+        else:
+            actual_cost_per_share = 1.0 - actual_fill_price
+        actual_notional = qty * actual_cost_per_share
+        actual_fee = self.fee_for_notional(actual_notional)
+        actual_total_cost = actual_notional + actual_fee
+        self.cash -= actual_total_cost
+        pos = Position(
+            tid=tid, side=side, qty=qty, entry_mid=mid,
+            entry_ts=now(), fee_open=actual_fee, cost_basis=actual_total_cost,
+            order_id=order_id, fill_price=actual_fill_price, z_score=0.0,
+            strategy="CONVERGENCE"
+        )
+        self.positions[tid] = pos
+        self._trade_count += 1
+        append_trade({
+            "ts": utc_ts(), "event": "OPEN", "slug": tid, "side": side,
+            "qty": f"{qty:.4f}", "entry_mid": f"{mid:.6f}", "exit_mid": "",
+            "pnl": "", "cash_after": f"{self.cash:.2f}",
+            "reason": "", "fee": f"{actual_fee:.4f}", "z_score": "0.00",
+            "strategy": "CONVERGENCE"
+        })
+        self.sync_balance(force=True)
+        logger.info(f"[OPEN] CONVERGENCE {side} on {tid} at {actual_fill_price:.4f} (order {order_id[:12]}...)")
+        return pos
+
     def _attempt_close(self, pos: Position, exit_mid: float) -> Tuple[bool, str, float]:
         slug = pos.tid
         slippage_mult = 1.0 + (SLIPPAGE_TOLERANCE_PCT / 100.0)
@@ -1559,6 +1696,128 @@ class SignalTracker:
 
 signal_tracker = SignalTracker()
 
+# =========================
+# Convergence Tracker
+# =========================
+
+class ConvergenceTracker:
+    """Track per-slug blowout observations for convergence strategy entry."""
+    def __init__(self):
+        self._observations: Dict[str, List[float]] = {}  # slug -> [timestamps]
+        self._entered: Set[str] = set()  # slugs we've already entered
+        self._last_seen: Dict[str, float] = {}  # slug -> last blowout row ts
+
+    def record(self, slug: str):
+        t = time.time()
+        if slug not in self._observations:
+            self._observations[slug] = []
+        self._observations[slug].append(t)
+        self._last_seen[slug] = t
+
+    def observation_count(self, slug: str) -> int:
+        return len(self._observations.get(slug, []))
+
+    def is_game_over(self, slug: str) -> bool:
+        last = self._last_seen.get(slug, 0)
+        return last > 0 and (time.time() - last) > CONV_GAME_OVER_NO_ROW_SEC
+
+    def mark_entered(self, slug: str):
+        self._entered.add(slug)
+
+    def already_entered(self, slug: str) -> bool:
+        return slug in self._entered
+
+    def cleanup(self):
+        cutoff = time.time() - 3600
+        for slug in list(self._observations):
+            self._observations[slug] = [t for t in self._observations[slug] if t > cutoff]
+            if not self._observations[slug]:
+                del self._observations[slug]
+        for slug in list(self._last_seen):
+            if self._last_seen[slug] < cutoff:
+                del self._last_seen[slug]
+
+# =========================
+# Convergence signal parsing
+# =========================
+
+def parse_blowout_row(row: Dict[str, str]) -> Optional[dict]:
+    """Parse a blowout CSV row into convergence signal data."""
+    slug = (row.get("slug") or "").strip()
+    if not slug:
+        return None
+    sport = (row.get("sport") or "").strip().lower()
+    period = int(to_float(row.get("period"), 0))
+    score_diff = int(to_float(row.get("score_diff"), 0))
+    yes_mid = to_float(row.get("yes_mid"), 0.0)
+    implied_prob = to_float(row.get("implied_leader_prob"), 0.0)
+    if not (0 < yes_mid < 1) or implied_prob <= 0:
+        return None
+    # Determine side: which side is the leader?
+    if yes_mid >= 0.5:
+        side = "BUY"        # YES is leader, buy YES
+        entry_price = yes_mid  # Cost per share = YES price
+    else:
+        side = "BUY_NO"     # NO is leader, buy NO
+        entry_price = 1.0 - yes_mid  # Cost per share = NO price
+    return {
+        "slug": slug, "sport": sport, "period": period,
+        "score_diff": score_diff, "yes_mid": yes_mid,
+        "implied_prob": implied_prob, "side": side,
+        "entry_price": entry_price,
+    }
+
+def _conv_sized_cash(broker) -> float:
+    """Position sizing for convergence: 8% of cash, capped $1-$5."""
+    base = max(CONV_CASH_MIN, min(broker.cash * CONV_CASH_FRAC, CONV_CASH_MAX))
+    return min(base, broker.cash)
+
+def should_enter_convergence(sig: dict, tracker: ConvergenceTracker, broker) -> Tuple[bool, str]:
+    """Check all convergence entry criteria. Returns (ok, reason)."""
+    if not ENABLE_CONVERGENCE:
+        return False, "disabled"
+    slug = sig["slug"]
+    sport = sig["sport"]
+    # Sport thresholds
+    thresh = CONV_THRESHOLDS.get(sport)
+    if not thresh:
+        return False, f"no_sport_{sport}"
+    if sig["period"] < thresh["period"]:
+        return False, f"period_{sig['period']}<{thresh['period']}"
+    if sig["score_diff"] < thresh["min_diff"]:
+        return False, f"diff_{sig['score_diff']}<{thresh['min_diff']}"
+    # Implied probability bounds
+    if sig["implied_prob"] < CONV_MIN_IMPLIED_PROB:
+        return False, f"implied_low_{sig['implied_prob']:.2f}"
+    if sig["implied_prob"] > CONV_MAX_IMPLIED_PROB:
+        return False, f"implied_high_{sig['implied_prob']:.2f}"
+    if sig["implied_prob"] > thresh["max_implied"]:
+        return False, f"implied_sport_max_{sig['implied_prob']:.2f}"
+    # Min observations (sustained blowout)
+    if tracker.observation_count(slug) < CONV_MIN_OBSERVATIONS:
+        return False, f"obs_{tracker.observation_count(slug)}<{CONV_MIN_OBSERVATIONS}"
+    # Already entered this game
+    if tracker.already_entered(slug):
+        return False, "already_entered"
+    # Already have this position open
+    if slug in broker.positions:
+        return False, "already_open"
+    # Convergence concurrent limit
+    conv_count = sum(1 for p in broker.positions.values() if p.strategy == "CONVERGENCE")
+    if conv_count >= CONV_MAX_CONCURRENT:
+        return False, f"conv_max_{conv_count}"
+    # Cash
+    cash_needed = _conv_sized_cash(broker)
+    if cash_needed < CONV_CASH_MIN or broker.cash < CONV_CASH_MIN:
+        return False, "low_cash"
+    # Blocklist
+    if broker.is_blocked(slug):
+        return False, "blocked"
+    # Circuit breaker
+    if CIRCUIT_BREAKER_ENABLED and broker.realized_pnl <= DAILY_LOSS_LIMIT:
+        return False, "circuit_breaker"
+    return True, "ok"
+
 def extract_signal_direction(row: Dict[str, str]) -> Optional[str]:
     """Extract SPIKE/DIP direction from raw CSV row (works for both trigger and outlier format)."""
     sig = to_upper(row.get("signal"))
@@ -1778,7 +2037,7 @@ atexit.register(cleanup_on_exit)
 def main():
     mode_str = "LIVE" if LIVE else "PAPER"
     print("=" * 60)
-    print(f"TRADE BOT v15.4 - POLYMARKET US API (BUY_NO FADE + EXEC GUARD)")
+    print(f"TRADE BOT v15.5 - POLYMARKET US API (BUY_NO FADE + CONVERGENCE)")
     print("=" * 60)
     print(f"Mode: {mode_str}")
     print(f"FADE  TP: {TP_PCT*100:.1f}%  SL: {SL_PCT*100:.1f}%  Time: {TIME_EXIT_SEC_PRIMARY}s  BE: {BREAKEVEN_EXIT_SEC}s")
@@ -1792,6 +2051,11 @@ def main():
     strat_mode = f"ADAPTIVE (cluster>={SIGNAL_CLUSTER_MIN_COUNT} @ {SIGNAL_CLUSTER_RATIO*100:.0f}%→TREND, else→FADE)" if ENABLE_TREND else "FADE only"
     no_side = " (BUY_NO only)" if FADE_NO_SIDE_ONLY else ""
     print(f"Max concurrent: {MAX_CONCURRENT_POS}  Strategy: {strat_mode}{no_side}")
+    conv_str = f"CONVERGENCE: enabled={ENABLE_CONVERGENCE} max={CONV_MAX_CONCURRENT} obs>={CONV_MIN_OBSERVATIONS} implied={CONV_MIN_IMPLIED_PROB}-{CONV_MAX_IMPLIED_PROB} SL={CONV_EMERGENCY_SL_PCT*100:.0f}%"
+    print(conv_str)
+    if ENABLE_CONVERGENCE:
+        for sport, t in CONV_THRESHOLDS.items():
+            print(f"  {sport.upper()}: period>={t['period']} diff>={t['min_diff']} max_implied={t['max_implied']}")
     print(f"API Base: {PM_US_BASE_URL}")
     print("=" * 60)
 
@@ -1808,6 +2072,21 @@ def main():
 
     hdr_trig = read_header(TRIGGERS_CSV)
     hdr_outl = read_header(OUTLIERS_CSV)
+
+    # Convergence: blowout CSV tailer + tracker
+    conv_tracker = ConvergenceTracker()
+    _conv_post_game_slugs: Set[str] = set()
+    t_blow = None
+    hdr_blow = []
+    if ENABLE_CONVERGENCE:
+        ensure_file_exists(BLOWOUT_CSV)
+        t_blow = TailState(BLOWOUT_CSV)
+        register_tailer(t_blow)
+        hdr_blow = read_header(BLOWOUT_CSV)
+        if hdr_blow:
+            logger.info(f"[CONV] Tailing blowout CSV: {BLOWOUT_CSV} ({len(hdr_blow)} cols)")
+        else:
+            logger.info(f"[CONV] Blowout CSV empty or no header yet: {BLOWOUT_CSV}")
 
     skips = SkipCounters()
     last_status = last_summary = last_cleanup = now()
@@ -1853,6 +2132,42 @@ def main():
                 exec_price = broker.get_executable_exit_price(pos)
                 ep = get_exit_params(pos.strategy)
                 stag = f"[{pos.strategy}] " if pos.strategy != "FADE" else ""
+
+                # CONVERGENCE: hold until game over, only emergency SL / max hold / game-over
+                if pos.strategy == "CONVERGENCE":
+                    profit_pct = _calc_profit_pct(pos.side, pos.entry_mid, current)
+                    # Emergency SL
+                    if profit_pct <= -CONV_EMERGENCY_SL_PCT:
+                        res = broker.close(tid, current, "conv_emergency_sl")
+                        if res:
+                            _, pnl = res
+                            print(f"🛑 [CONV-SL] {tid[:16]}... {pos.side} pnl=${pnl:.4f} (emergency)")
+                        continue
+                    # Max hold timeout
+                    if age >= CONV_MAX_HOLD_SEC:
+                        res = broker.close(tid, current, "conv_timeout")
+                        if res:
+                            _, pnl = res
+                            print(f"⏰ [CONV-TIME] {tid[:16]}... {pos.side} pnl=${pnl:.4f} (max hold)")
+                        continue
+                    # Game over: no blowout row in 4 min
+                    if conv_tracker.is_game_over(tid):
+                        res = broker.close(tid, current, "conv_game_over")
+                        if res:
+                            _, pnl = res
+                            print(f"🏁 [CONV-END] {tid[:16]}... {pos.side} pnl=${pnl:.4f} (game over)")
+                        continue
+                    # POST_GAME detected from trigger/outlier rows
+                    if tid in _conv_post_game_slugs:
+                        res = broker.close(tid, current, "conv_post_game")
+                        if res:
+                            _, pnl = res
+                            print(f"🏁 [CONV-POST] {tid[:16]}... {pos.side} pnl=${pnl:.4f} (post-game)")
+                        continue
+                    # Hold — log periodic status
+                    if int(age) % 60 < 1:
+                        logger.info(f"[CONV-HOLD] {tid[:16]}... {pos.side} profit={profit_pct*100:.1f}% age={age:.0f}s mid={current:.4f}")
+                    continue
 
                 if hit_take_profit(pos.side, pos.entry_mid, exec_price, ep["tp"]):
                     res = broker.close(tid, current, "tp")
@@ -1976,7 +2291,8 @@ def main():
                             else:
                                 skips.blocked_market += 1
                             continue
-                        if len(broker.positions) >= MAX_CONCURRENT_POS:
+                        fade_trend_count = sum(1 for p in broker.positions.values() if p.strategy != "CONVERGENCE")
+                        if fade_trend_count >= MAX_CONCURRENT_POS:
                             skips.max_concurrent += 1
                             continue
                         if tid in broker.positions:
@@ -2014,12 +2330,42 @@ def main():
             try_open(trig_rows, "TRIG")
             try_open(outl_rows, "OUTL")
 
+            # --- CONVERGENCE: scan for POST_GAME on open convergence positions ---
+            conv_positions = {tid for tid, p in broker.positions.items() if p.strategy == "CONVERGENCE"}
+            if conv_positions:
+                for row in trig_rows + outl_rows:
+                    gp = (row.get("game_phase") or "").strip().upper()
+                    slug_raw = (row.get("market_slug") or row.get("tid") or "").strip()
+                    if gp == "POST_GAME" and slug_raw in conv_positions:
+                        _conv_post_game_slugs.add(slug_raw)
+
+            # --- CONVERGENCE: tail blowout CSV, record observations, try entries ---
+            if ENABLE_CONVERGENCE and t_blow:
+                new_blow = t_blow.read_new_lines()
+                if not hdr_blow and new_blow:
+                    hdr_blow = read_header(BLOWOUT_CSV)
+                blow_rows = parse_csv_lines(hdr_blow, new_blow) if hdr_blow else []
+                for br in blow_rows:
+                    sig = parse_blowout_row(br)
+                    if not sig:
+                        continue
+                    conv_tracker.record(sig["slug"])
+                    ok, reason = should_enter_convergence(sig, conv_tracker, broker)
+                    if ok:
+                        pos = broker.open_convergence(sig["slug"], sig["side"], sig["yes_mid"], sig["entry_price"])
+                        if pos:
+                            conv_tracker.mark_entered(sig["slug"])
+                            print(f"🎯 [CONV-OPEN] {sig['slug'][:16]}... {sig['side']} mid={sig['yes_mid']:.4f} implied={sig['implied_prob']:.2f} {sig['sport'].upper()} P{sig['period']} diff={sig['score_diff']} obs={conv_tracker.observation_count(sig['slug'])}")
+                    elif DEBUG_REJECTIONS:
+                        logger.debug(f"[CONV-SKIP] {sig['slug'][:16]}... {reason}")
+
             t = now()
             if t - last_cleanup >= CLEANUP_EVERY_SEC:
                 if hasattr(broker, 'cleanup_all'):
                     broker.cleanup_all()
                 rearm_tracker.force_cleanup()
                 signal_tracker.cleanup()
+                conv_tracker.cleanup()
                 gc.collect()
                 last_cleanup = t
 
@@ -2027,7 +2373,10 @@ def main():
                 s = broker.get_status_dict()
                 mem = f" RAM {get_memory_mb():.0f}MB" if HAS_PSUTIL else ""
                 cb = " CIRCUIT_BREAKER" if (CIRCUIT_BREAKER_ENABLED and s['realized_pnl'] <= DAILY_LOSS_LIMIT) else ""
-                print(f"[STATUS] pos={s['open']} eq=${s['equity']:.2f} pnl=${s['realized_pnl']:.4f} W:{s['wins']}/L:{s['losses']} ({s['win_rate']:.0f}%) TP:{s['tp']} SL:{s['sl']} T:{s['time']} BE:{s['be']} TR:{s['trail']}{cb}{mem}")
+                fade_count = sum(1 for p in broker.positions.values() if p.strategy != "CONVERGENCE")
+                conv_count = sum(1 for p in broker.positions.values() if p.strategy == "CONVERGENCE")
+                pos_str = f"{fade_count}+{conv_count}c" if conv_count > 0 else str(fade_count)
+                print(f"[STATUS] pos={pos_str} eq=${s['equity']:.2f} pnl=${s['realized_pnl']:.4f} W:{s['wins']}/L:{s['losses']} ({s['win_rate']:.0f}%) TP:{s['tp']} SL:{s['sl']} T:{s['time']} BE:{s['be']} TR:{s['trail']}{cb}{mem}")
                 last_status = t
 
             if t - last_summary >= SUMMARY_EVERY_SEC and skips.has_any():
