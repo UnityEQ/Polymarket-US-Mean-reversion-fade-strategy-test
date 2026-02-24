@@ -180,7 +180,6 @@ The `_extract_volume()` helper only searches REST fields — its "no REST volume
 Track observed bugs/concerns here. Remove entries once fixed and verified.
 
 - **OI wipe on discover refresh**: `discover(refresh=True)` replaces `STATE.meta` dicts, wiping WS-populated `open_interest` and `shares_traded` values. OI counts drop from 18/49 → 1/49 and slowly rebuild as new WS messages arrive. During active games, this 5-min refresh window could cause valid signals to get `REJECT_VOLUME`. Fix: preserve OI/sharesTraded values across refresh, or merge new meta into existing instead of replacing.
-- **scanner.py still uses UTC for slug date comparisons**: `classify_game_phase()` (line ~179) and `discover_markets()` (line ~287) in scanner.py still use `datetime.now(timezone.utc)` — same bug that was fixed in monitor.py. After ~7 PM ET, scanner will misclassify tonight's live games as POST_GAME and apply pre-game penalty to composite scores. Fix: apply same local-date fix as monitor.py.
 
 ## Market Intelligence
 

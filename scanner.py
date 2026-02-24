@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-POLYMARKET US ACTIVITY SCANNER v3.0
+POLYMARKET US ACTIVITY SCANNER v4.0
 
-Monitors whether the FADE strategy would actually PROFIT right now — not
-just whether signals exist, but whether spreads are tight enough to enter
-AND whether price spikes are actually reverting (the core of FADE).
+Monitors whether FADE (mean reversion) or TREND (momentum following) conditions
+are profitable right now. Tracks both reversion rate (spikes reverting = good for
+FADE) and continuation rate (spikes NOT reverting = good for TREND).
 
-Three improvements over v2:
-  1. Tighter spread threshold (4% WS spread, matching trade.py's 3% entry slippage)
-  2. TREND filter (|z| >= 6 excluded — monitor marks these TREND, trade.py skips)
-  3. Reversion tracking — after every z>=3.5 spike, checks 3min later if price
-     reverted >50% toward pre-spike mean. Only alerts when reversion rate is decent.
+Key features:
+  1. Dual strategy scoring — separate FADE and TREND composites
+  2. Reversion tracking — checks 3min after spike if price reverted >50%
+  3. Continuation tracking — checks if price kept moving in spike direction
+  4. Game phase awareness — pre-game-only signals get 0.3x penalty
 
 Usage:
     . .\creds.ps1
@@ -95,20 +95,32 @@ ALERT_COOLDOWN_SEC = 300
 MIN_REVERSION_RATE = 0.30  # at least 30% of tracked spikes must revert
 MIN_CHECKED_SPIKES = 3     # need at least 3 checked spikes for reversion rate to matter
 
+# ---------- TREND tracking ----------
+Z_MIN_TREND = 3.5          # min z for TREND eligibility (same as trade.py)
+MAX_SPREAD_TREND = 0.10    # TREND allows wider spread than FADE (matches trade.py MAX_SPREAD_BASE)
+CONTINUATION_THRESHOLD = 0.20  # spike "continued" if reverted less than 20%
+MIN_CONTINUATION_RATE = 0.40   # at least 40% of tracked spikes must continue for TREND alert
+
 # Beep settings (Windows)
 BEEP_FREQ_HOT = 1000
 BEEP_DUR_HOT = 500
 BEEP_FREQ_FIRE = 1500
 BEEP_DUR_FIRE = 1000
 
-# Metric weights (sum to 1.0)
+# FADE metric weights (sum to 1.0)
 WEIGHT_FADE_READY = 0.35   # FADE-eligible: z in 3.5-6, spread < 4%, mid in range
 WEIGHT_REVERSION = 0.30    # are spikes actually reverting?
 WEIGHT_VOLATILE = 0.15     # markets with z >= 1.5 (pipeline health)
 WEIGHT_TIGHT = 0.20        # markets with spread < 4% (entry-slippage-safe)
 
+# TREND metric weights (sum to 1.0)
+WEIGHT_TREND_READY = 0.35      # TREND-eligible: z >= 3.5, spread < 10%, mid in range
+WEIGHT_CONTINUATION = 0.30     # are spikes continuing (NOT reverting)?
+WEIGHT_TREND_VOLATILE = 0.15   # same volatile count
+WEIGHT_TREND_TIGHT = 0.20      # spread < 10% (wider than FADE)
+
 # Infrastructure
-MAX_MARKETS = 500
+MAX_MARKETS = 1500
 MARKET_REFRESH_SEC = 300
 WS_PING_INTERVAL_SEC = 30
 WS_RECONNECT_BASE_SEC = 1.0
@@ -147,7 +159,8 @@ def extract_amount_value(obj) -> Optional[float]:
 
 
 def parse_date_from_slug(slug: str) -> Optional[datetime]:
-    match = re.search(r'(\d{4}-\d{2}-\d{2})$', slug)
+    # Match YYYY-MM-DD at end or followed by -outcome suffix (MLS three-way markets)
+    match = re.search(r'(\d{4}-\d{2}-\d{2})(?:-[a-z]+)?$', slug)
     if match:
         try:
             return datetime.strptime(match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -163,8 +176,11 @@ def classify_game_phase(meta: dict, slug: str) -> str:
     creation time, not game time). API end_date used for same-day refinement.
     """
     from datetime import timedelta
-    now_utc = datetime.now(timezone.utc)
-    today_start = now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Use local date (not UTC) — slug dates are US local dates.
+    # After ~7 PM ET (midnight UTC), UTC rolls to next day, which would
+    # incorrectly filter tonight's live games as "yesterday/stale".
+    now_local = datetime.now()
+    today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
     tomorrow_start = today_start + timedelta(days=1)
 
     # Step 1: Slug date for coarse classification
@@ -182,7 +198,7 @@ def classify_game_phase(meta: dict, slug: str) -> str:
             end_dt = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
             if end_dt.tzinfo is None:
                 end_dt = end_dt.replace(tzinfo=timezone.utc)
-            if now_utc > end_dt:
+            if datetime.now(timezone.utc) > end_dt:
                 return "POST_GAME"
         except (ValueError, TypeError):
             pass
@@ -223,7 +239,7 @@ class RestClient:
         retries = Retry(total=3, backoff_factor=1.0, status_forcelist=[429, 500, 502, 503, 504])
         adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=5)
         self._session.mount("https://", adapter)
-        self._session.headers.update({"User-Agent": "PolymarketScanner/3.0", "Accept": "application/json"})
+        self._session.headers.update({"User-Agent": "PolymarketScanner/4.0", "Accept": "application/json"})
 
     def _sign(self, method: str, path: str, timestamp_ms: str) -> str:
         message = f"{timestamp_ms}{method}{path}"
@@ -271,7 +287,10 @@ class RestClient:
                 break
             time.sleep(0.1)
 
-        today_dt = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        # Use local date (not UTC) — slug dates are US local dates.
+        # After ~7 PM ET (midnight UTC), UTC rolls to next day, which would
+        # incorrectly filter tonight's live games as "yesterday/stale".
+        today_dt = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         slugs = []
         for m in all_markets[:MAX_MARKETS]:
             slug = m.get("slug", "")
@@ -297,12 +316,14 @@ class RestClient:
 # -------------------- Spike Reversion Tracker --------------------
 
 class SpikeRecord:
-    """Tracks a z-score spike and whether the price reverted."""
+    """Tracks a z-score spike and whether the price reverted or continued."""
     __slots__ = ('time', 'slug', 'spike_mid', 'pre_mean', 'z_score',
-                 'spread', 'checked', 'reverted', 'check_mid')
+                 'spread', 'checked', 'reverted', 'continued', 'check_mid',
+                 'fade_eligible', 'trend_eligible')
 
     def __init__(self, t: float, slug: str, spike_mid: float,
-                 pre_mean: float, z_score: float, spread: float):
+                 pre_mean: float, z_score: float, spread: float,
+                 fade_eligible: bool = False, trend_eligible: bool = False):
         self.time = t
         self.slug = slug
         self.spike_mid = spike_mid
@@ -311,7 +332,10 @@ class SpikeRecord:
         self.spread = spread
         self.checked = False
         self.reverted = False
+        self.continued = False
         self.check_mid = 0.0
+        self.fade_eligible = fade_eligible
+        self.trend_eligible = trend_eligible
 
 
 # -------------------- Market Z-Score Tracker --------------------
@@ -384,23 +408,36 @@ class ActivityTracker:
                             ms.peak_z = z
                             ms.peak_z_time = now
 
-                        # Log FADE-eligible spikes (z in FADE range, not TREND)
+                        # Eligibility checks
                         is_fade_z = Z_TRADEABLE <= abs_z < Z_MAX_FADE
+                        is_trend_z = abs_z >= Z_MIN_TREND  # no upper cap for TREND
                         mid_ok = MIN_MID <= mid <= MAX_MID
-                        spread_ok = spread_pct < MAX_SPREAD_FADE
+                        fade_spread_ok = spread_pct < MAX_SPREAD_FADE
+                        trend_spread_ok = spread_pct < MAX_SPREAD_TREND
 
-                        if is_fade_z and mid_ok and spread_ok:
-                            self._recent_spikes.append((now, slug, z, mid, spread_pct))
-                            # Create reversion record to track outcome
+                        is_fade = is_fade_z and mid_ok and fade_spread_ok
+                        is_trend = is_trend_z and mid_ok and trend_spread_ok
+
+                        if is_fade or is_trend:
+                            # Tag spike with eligibility for display
+                            tag = ""
+                            if is_fade and is_trend:
+                                tag = "F+T"
+                            elif is_fade:
+                                tag = "F"
+                            else:
+                                tag = "T"
+                            self._recent_spikes.append((now, slug, z, mid, spread_pct, tag))
+                            # Create reversion/continuation record
                             self._spike_records.append(SpikeRecord(
                                 t=now, slug=slug, spike_mid=mid,
                                 pre_mean=m_val, z_score=z, spread=spread_pct,
+                                fade_eligible=is_fade, trend_eligible=is_trend,
                             ))
 
-                        # Also log wider spikes for display (but mark them)
+                        # Also log wider spikes for display only (FADE z-range, spread 4-10%)
                         elif is_fade_z and mid_ok and spread_pct < MAX_SPREAD_BASE:
-                            # Track for display only — spread too wide for real entry
-                            self._recent_spikes.append((now, slug, z, mid, spread_pct))
+                            self._recent_spikes.append((now, slug, z, mid, spread_pct, ""))
             else:
                 ms.history.append(mid)
 
@@ -437,6 +474,7 @@ class ActivityTracker:
             reversion_pct = reversion_amount / spike_deviation if abs(spike_deviation) > 1e-9 else 0
 
             rec.reverted = reversion_pct >= REVERSION_THRESHOLD
+            rec.continued = reversion_pct < CONTINUATION_THRESHOLD
 
     def get_metrics(self) -> dict:
         now = time.time()
@@ -451,12 +489,17 @@ class ActivityTracker:
             ready = 0
             volatile = 0
             fade_ready = 0     # FADE-eligible: z 3.5-6, spread < 4%, mid in range
+            trend_ready = 0    # TREND-eligible: z >= 3.5, spread < 10%, mid in range
             tight_entry = 0
+            trend_tight = 0    # spread < 10% (TREND threshold)
             total_oi = 0.0
-            # Game phase counts for FADE-ready markets
+            # Game phase counts for strategy-ready markets
             fade_phase_live = 0
             fade_phase_pre = 0
             fade_phase_unknown = 0
+            trend_phase_live = 0
+            trend_phase_pre = 0
+            trend_phase_unknown = 0
 
             for slug, ms in self._markets.items():
                 total_oi += ms.last_oi
@@ -469,18 +512,19 @@ class ActivityTracker:
 
                 if ms.last_spread < MAX_SPREAD_FADE:
                     tight_entry += 1
+                if ms.last_spread < MAX_SPREAD_TREND:
+                    trend_tight += 1
 
                 # Check peak z within the last 60s
                 if now - ms.peak_z_time < 60 and n_hist >= MIN_WARMUP:
                     abs_z = abs(ms.peak_z)
+                    mid_ok = MIN_MID <= ms.last_mid <= MAX_MID
                     if abs_z >= Z_WATCH:
                         volatile += 1
-                    # FADE-ready: z in FADE range, NOT trend, tight spread, mid ok
+                    # FADE-ready: z in FADE range, tight spread, mid ok
                     if (Z_TRADEABLE <= abs_z < Z_MAX_FADE
-                            and MIN_MID <= ms.last_mid <= MAX_MID
-                            and ms.last_spread < MAX_SPREAD_FADE):
+                            and mid_ok and ms.last_spread < MAX_SPREAD_FADE):
                         fade_ready += 1
-                        # Track game phase of FADE-ready markets
                         meta = MARKET_META.get(slug, {})
                         phase = classify_game_phase(meta, slug)
                         if phase == "LIVE":
@@ -489,33 +533,50 @@ class ActivityTracker:
                             fade_phase_pre += 1
                         else:
                             fade_phase_unknown += 1
+                    # TREND-ready: z >= 3.5 (no upper cap), wider spread OK, mid ok
+                    if (abs_z >= Z_MIN_TREND
+                            and mid_ok and ms.last_spread < MAX_SPREAD_TREND):
+                        trend_ready += 1
+                        meta = MARKET_META.get(slug, {})
+                        phase = classify_game_phase(meta, slug)
+                        if phase == "LIVE":
+                            trend_phase_live += 1
+                        elif phase == "PRE_GAME":
+                            trend_phase_pre += 1
+                        else:
+                            trend_phase_unknown += 1
 
-            # Reversion rate from recent checked spikes
+            # Reversion rate from recent checked FADE-eligible spikes
             recent_records = [r for r in self._spike_records if now - r.time < REVERSION_WINDOW_SEC]
-            checked_records = [r for r in recent_records if r.checked]
-            reverted_records = [r for r in checked_records if r.reverted]
-            total_checked = len(checked_records)
-            total_reverted = len(reverted_records)
+            fade_checked = [r for r in recent_records if r.checked and r.fade_eligible]
+            fade_reverted = [r for r in fade_checked if r.reverted]
+            total_checked = len(fade_checked)
+            total_reverted = len(fade_reverted)
             reversion_rate = total_reverted / total_checked if total_checked > 0 else 0.0
-            pending_checks = len(recent_records) - total_checked
+            fade_pending = len([r for r in recent_records if not r.checked and r.fade_eligible])
 
-            # Recent FADE-eligible spikes for display (last 5 min, most recent first)
-            recent_list = [(t, s, z, m, sp) for t, s, z, m, sp in self._recent_spikes if now - t < spike_window]
+            # Continuation rate from recent checked TREND-eligible spikes
+            trend_checked = [r for r in recent_records if r.checked and r.trend_eligible]
+            trend_continued = [r for r in trend_checked if r.continued]
+            trend_total_checked = len(trend_checked)
+            trend_total_continued = len(trend_continued)
+            continuation_rate = trend_total_continued / trend_total_checked if trend_total_checked > 0 else 0.0
+            trend_pending = len([r for r in recent_records if not r.checked and r.trend_eligible])
+
+            # Recent spikes for display (last 5 min, most recent first)
+            recent_list = [item for item in self._recent_spikes if now - item[0] < spike_window]
             recent_list.sort(key=lambda x: x[0], reverse=True)
             recent_spike_count = len(recent_list)
 
-        # Score each metric
+        # ---- FADE composite ----
         fade_ready_score = score_linear(fade_ready, [
             (0, 0), (1, 35), (2, 60), (3, 80), (5, 95), (8, 100),
         ])
-
-        # Reversion score: 0% reverted = 0, 30% = 40, 50% = 70, 70%+ = 100
         reversion_score = score_linear(reversion_rate * 100, [
             (0, 0), (15, 15), (30, 40), (50, 70), (70, 95), (100, 100),
         ])
-        # If not enough checked spikes yet, reversion score is neutral (50)
         if total_checked < MIN_CHECKED_SPIKES:
-            reversion_score = 50.0 if pending_checks > 0 else 0.0
+            reversion_score = 50.0 if fade_pending > 0 else 0.0
 
         volatile_score = score_linear(volatile, [
             (0, 0), (2, 15), (5, 35), (10, 55), (20, 80), (30, 100),
@@ -524,16 +585,41 @@ class ActivityTracker:
             (0, 0), (3, 20), (8, 45), (15, 70), (25, 90), (40, 100),
         ])
 
-        composite = (
+        fade_composite = (
             WEIGHT_FADE_READY * fade_ready_score
             + WEIGHT_REVERSION * reversion_score
             + WEIGHT_VOLATILE * volatile_score
             + WEIGHT_TIGHT * tight_score
         )
-
-        # Pre-game penalty: if ALL FADE-ready markets are PRE_GAME, apply 0.3x multiplier
         if fade_ready > 0 and fade_phase_live == 0 and fade_phase_unknown == 0:
-            composite *= 0.3
+            fade_composite *= 0.3
+
+        # ---- TREND composite ----
+        trend_ready_score = score_linear(trend_ready, [
+            (0, 0), (1, 35), (2, 60), (3, 80), (5, 95), (8, 100),
+        ])
+        # Continuation score: 0% = 0, 40% = 50, 60% = 75, 80%+ = 100
+        continuation_score = score_linear(continuation_rate * 100, [
+            (0, 0), (20, 20), (40, 50), (60, 75), (80, 95), (100, 100),
+        ])
+        if trend_total_checked < MIN_CHECKED_SPIKES:
+            continuation_score = 50.0 if trend_pending > 0 else 0.0
+
+        trend_tight_score = score_linear(trend_tight, [
+            (0, 0), (3, 20), (8, 45), (15, 70), (25, 90), (40, 100),
+        ])
+
+        trend_composite = (
+            WEIGHT_TREND_READY * trend_ready_score
+            + WEIGHT_CONTINUATION * continuation_score
+            + WEIGHT_TREND_VOLATILE * volatile_score  # reuse volatile count
+            + WEIGHT_TREND_TIGHT * trend_tight_score
+        )
+        if trend_ready > 0 and trend_phase_live == 0 and trend_phase_unknown == 0:
+            trend_composite *= 0.3
+
+        # Overall: best of the two strategies
+        composite = max(fade_composite, trend_composite)
 
         return {
             "total_markets": total_markets,
@@ -541,23 +627,40 @@ class ActivityTracker:
             "ready": ready,
             "volatile": volatile,
             "fade_ready": fade_ready,
+            "trend_ready": trend_ready,
             "tight_entry": tight_entry,
+            "trend_tight": trend_tight,
             "total_oi": total_oi,
             "recent_spike_count": recent_spike_count,
             "recent_spikes": recent_list[:TOP_SPIKES_SHOWN],
+            # FADE metrics
             "fade_ready_score": fade_ready_score,
             "reversion_rate": reversion_rate,
             "reversion_score": reversion_score,
             "total_checked": total_checked,
             "total_reverted": total_reverted,
-            "pending_checks": pending_checks,
-            "volatile_score": volatile_score,
-            "tight_score": tight_score,
-            "composite": composite,
-            "update_count": self._update_count,
+            "fade_pending": fade_pending,
+            "fade_composite": fade_composite,
             "fade_phase_live": fade_phase_live,
             "fade_phase_pre": fade_phase_pre,
             "fade_phase_unknown": fade_phase_unknown,
+            # TREND metrics
+            "trend_ready_score": trend_ready_score,
+            "continuation_rate": continuation_rate,
+            "continuation_score": continuation_score,
+            "trend_total_checked": trend_total_checked,
+            "trend_total_continued": trend_total_continued,
+            "trend_pending": trend_pending,
+            "trend_composite": trend_composite,
+            "trend_phase_live": trend_phase_live,
+            "trend_phase_pre": trend_phase_pre,
+            "trend_phase_unknown": trend_phase_unknown,
+            # Shared
+            "volatile_score": volatile_score,
+            "tight_score": tight_score,
+            "trend_tight_score": trend_tight_score,
+            "composite": composite,
+            "update_count": self._update_count,
         }
 
 
@@ -821,81 +924,149 @@ def print_dashboard(metrics: dict, ws: WSStream):
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     ws_status = "CONNECTED" if ws.connected else "DISCONNECTED"
 
+    fade_composite = metrics["fade_composite"]
+    trend_composite = metrics["trend_composite"]
     composite = metrics["composite"]
     fade_ready = metrics["fade_ready"]
+    trend_ready = metrics["trend_ready"]
     reversion_rate = metrics["reversion_rate"]
+    continuation_rate = metrics["continuation_rate"]
     total_checked = metrics["total_checked"]
     total_reverted = metrics["total_reverted"]
-    pending = metrics["pending_checks"]
+    fade_pending = metrics["fade_pending"]
+    trend_total_checked = metrics["trend_total_checked"]
+    trend_total_continued = metrics["trend_total_continued"]
+    trend_pending = metrics["trend_pending"]
 
-    # Determine label based on conditions
+    # Determine FADE label
     has_fade = fade_ready >= 1
     has_reversion = (total_checked >= MIN_CHECKED_SPIKES and reversion_rate >= MIN_REVERSION_RATE)
-    not_enough_data = total_checked < MIN_CHECKED_SPIKES
+    fade_no_data = total_checked < MIN_CHECKED_SPIKES
 
-    if composite >= SCORE_FIRE and has_fade and has_reversion:
-        label = "*** FIRE -- START YOUR BOTS NOW ***"
-    elif composite >= SCORE_HOT and has_fade and has_reversion:
-        label = "*** HOT -- GOOD TIME TO RUN BOTS ***"
-    elif composite >= SCORE_HOT and has_fade and not_enough_data:
-        label = "(signals found, waiting for reversion data...)"
-    elif has_fade and not has_reversion and total_checked >= MIN_CHECKED_SPIKES:
-        label = "(signals but NOT reverting -- trending/game events)"
-    elif composite >= 40:
-        label = "(building up -- watch closely)"
-    elif metrics["warmed_up"] < 10:
-        label = "(warming up -- z-scores not ready yet)"
+    if fade_composite >= SCORE_FIRE and has_fade and has_reversion:
+        fade_label = "FIRE"
+    elif fade_composite >= SCORE_HOT and has_fade and has_reversion:
+        fade_label = "HOT"
+    elif fade_composite >= SCORE_HOT and has_fade and fade_no_data:
+        fade_label = "waiting..."
+    elif has_fade and not has_reversion and not fade_no_data:
+        fade_label = "not reverting"
+    elif fade_composite >= 40:
+        fade_label = "building"
     else:
-        label = "(quiet -- not worth trading)"
+        fade_label = "quiet"
+
+    # Determine TREND label
+    has_trend = trend_ready >= 1
+    has_continuation = (trend_total_checked >= MIN_CHECKED_SPIKES and continuation_rate >= MIN_CONTINUATION_RATE)
+    trend_no_data = trend_total_checked < MIN_CHECKED_SPIKES
+
+    if trend_composite >= SCORE_FIRE and has_trend and has_continuation:
+        trend_label = "FIRE"
+    elif trend_composite >= SCORE_HOT and has_trend and has_continuation:
+        trend_label = "HOT"
+    elif trend_composite >= SCORE_HOT and has_trend and trend_no_data:
+        trend_label = "waiting..."
+    elif has_trend and not has_continuation and not trend_no_data:
+        trend_label = "reverting (bad)"
+    elif trend_composite >= 40:
+        trend_label = "building"
+    else:
+        trend_label = "quiet"
+
+    # Overall label
+    best = "FADE" if fade_composite >= trend_composite else "TREND"
+    if composite >= SCORE_FIRE:
+        overall_label = f"*** FIRE -- {best} conditions are excellent ***"
+    elif composite >= SCORE_HOT:
+        overall_label = f"*** HOT -- {best} looks good ***"
+    elif composite >= 40:
+        overall_label = "(building up -- watch closely)"
+    elif metrics["warmed_up"] < 10:
+        overall_label = "(warming up -- z-scores not ready yet)"
+    else:
+        overall_label = "(quiet -- not worth trading)"
 
     tee_print()
     tee_print("=" * 72)
-    tee_print(f"POLYMARKET SCANNER v3 | {now_str} UTC | WS: {ws_status} | msgs: {ws.msg_count}")
+    tee_print(f"POLYMARKET SCANNER v4 | {now_str} UTC | WS: {ws_status} | msgs: {ws.msg_count}")
     tee_print("=" * 72)
-    tee_print(f"  FADE-ready (z 3.5-6): {fade_ready:<3} mkts  {score_bar(metrics['fade_ready_score'])}  {metrics['fade_ready_score']:.0f}")
 
-    # Reversion display
+    # ---- FADE section ----
+    tee_print(f"  FADE  (mean reversion)  score: {fade_composite:.0f}/100  [{fade_label}]")
+    tee_print(f"    Ready (z 3.5-6):  {fade_ready:<3} mkts  {score_bar(metrics['fade_ready_score'])}  {metrics['fade_ready_score']:.0f}")
+
     if total_checked > 0:
         rev_pct_str = f"{reversion_rate*100:.0f}%"
         rev_detail = f"({total_reverted}/{total_checked} reverted"
-        if pending > 0:
-            rev_detail += f", {pending} pending"
+        if fade_pending > 0:
+            rev_detail += f", {fade_pending} pending"
         rev_detail += ")"
-    elif pending > 0:
+    elif fade_pending > 0:
         rev_pct_str = "---"
-        rev_detail = f"({pending} spikes pending check)"
+        rev_detail = f"({fade_pending} spikes pending check)"
     else:
         rev_pct_str = "n/a"
         rev_detail = "(no spikes yet)"
-    tee_print(f"  Reversion rate:     {rev_pct_str:<5}       {score_bar(metrics['reversion_score'])}  {metrics['reversion_score']:.0f}  {rev_detail}")
+    tee_print(f"    Reversion rate:   {rev_pct_str:<5}       {score_bar(metrics['reversion_score'])}  {metrics['reversion_score']:.0f}  {rev_detail}")
 
-    tee_print(f"  Volatile (z>=1.5):  {metrics['volatile']:<3} mkts  {score_bar(metrics['volatile_score'])}  {metrics['volatile_score']:.0f}")
-    tee_print(f"  Tight spread (<4%): {metrics['tight_entry']:<3} mkts  {score_bar(metrics['tight_score'])}  {metrics['tight_score']:.0f}")
-    tee_print(f"  Warmup: {metrics['warmed_up']}/{metrics['total_markets']} markets have {MIN_WARMUP}+ data points")
     if fade_ready > 0:
-        tee_print(f"  Game phase:         {metrics['fade_phase_live']} live, {metrics['fade_phase_pre']} pre-game, {metrics['fade_phase_unknown']} unknown")
+        tee_print(f"    Game phase:       {metrics['fade_phase_live']} live, {metrics['fade_phase_pre']} pre, {metrics['fade_phase_unknown']} unknown")
         if metrics['fade_phase_live'] == 0 and metrics['fade_phase_unknown'] == 0:
-            tee_print(f"  ** Score penalized 0.3x (all FADE signals are pre-game)")
+            tee_print(f"    ** Penalized 0.3x (all pre-game)")
+
+    # ---- TREND section ----
+    tee_print(f"  TREND (momentum)        score: {trend_composite:.0f}/100  [{trend_label}]")
+    tee_print(f"    Ready (z>=3.5):   {trend_ready:<3} mkts  {score_bar(metrics['trend_ready_score'])}  {metrics['trend_ready_score']:.0f}")
+
+    if trend_total_checked > 0:
+        cont_pct_str = f"{continuation_rate*100:.0f}%"
+        cont_detail = f"({trend_total_continued}/{trend_total_checked} continued"
+        if trend_pending > 0:
+            cont_detail += f", {trend_pending} pending"
+        cont_detail += ")"
+    elif trend_pending > 0:
+        cont_pct_str = "---"
+        cont_detail = f"({trend_pending} spikes pending check)"
+    else:
+        cont_pct_str = "n/a"
+        cont_detail = "(no spikes yet)"
+    tee_print(f"    Continuation:     {cont_pct_str:<5}       {score_bar(metrics['continuation_score'])}  {metrics['continuation_score']:.0f}  {cont_detail}")
+
+    if trend_ready > 0:
+        tee_print(f"    Game phase:       {metrics['trend_phase_live']} live, {metrics['trend_phase_pre']} pre, {metrics['trend_phase_unknown']} unknown")
+        if metrics['trend_phase_live'] == 0 and metrics['trend_phase_unknown'] == 0:
+            tee_print(f"    ** Penalized 0.3x (all pre-game)")
+
+    # ---- Shared metrics ----
+    tee_print(f"  Shared metrics:")
+    tee_print(f"    Volatile (z>=1.5):  {metrics['volatile']:<3} mkts  {score_bar(metrics['volatile_score'])}  {metrics['volatile_score']:.0f}")
+    tee_print(f"    Tight (<4%):        {metrics['tight_entry']:<3} mkts  {score_bar(metrics['tight_score'])}  {metrics['tight_score']:.0f}")
+    tee_print(f"    Warmup: {metrics['warmed_up']}/{metrics['total_markets']} markets have {MIN_WARMUP}+ data points")
     tee_print("-" * 72)
-    tee_print(f"  SCORE:  {composite:.0f} / 100   {label}")
+    tee_print(f"  BEST:  {composite:.0f} / 100  ({best})   {overall_label}")
     if metrics["recent_spike_count"] > 0:
-        tee_print(f"  FADE-eligible spikes in last 5 min: {metrics['recent_spike_count']}")
+        tee_print(f"  Spikes in last 5 min: {metrics['recent_spike_count']}")
     tee_print("-" * 72)
 
     spikes = metrics.get("recent_spikes", [])
     if spikes:
-        tee_print(f"  Recent spikes (FADE-eligible: z {Z_TRADEABLE}-{Z_MAX_FADE}, spread<{MAX_SPREAD_FADE*100:.0f}%):")
-        for ts, slug, z, mid_val, spread in spikes:
+        tee_print(f"  Recent spikes (F=FADE, T=TREND eligible):")
+        for item in spikes:
+            ts, slug, z, mid_val, spread = item[0], item[1], item[2], item[3], item[4]
+            tag = item[5] if len(item) > 5 else ""
             age = time.time() - ts
             age_str = f"{age:.0f}s ago" if age < 60 else f"{age/60:.0f}m ago"
-            display_slug = slug[:32] if len(slug) > 32 else slug
+            display_slug = slug[:30] if len(slug) > 30 else slug
             direction = "SPIKE" if z > 0 else "DIP"
-            entry_ok = "OK" if spread < MAX_SPREAD_FADE else "WIDE"
-            tee_print(f"    {display_slug:<33} z={z:+.1f} {direction:<5} mid={mid_val:.3f} "
-                      f"spread={spread*100:.1f}% {entry_ok} ({age_str})")
+            tag_str = f" [{tag}]" if tag else ""
+            tee_print(f"    {display_slug:<31} z={z:+.1f} {direction:<5} mid={mid_val:.3f} "
+                      f"spread={spread*100:.1f}%{tag_str} ({age_str})")
     else:
-        tee_print(f"  No FADE-eligible spikes yet")
-        tee_print(f"    Need: z {Z_TRADEABLE}-{Z_MAX_FADE}, mid {MIN_MID}-{MAX_MID}, spread<{MAX_SPREAD_FADE*100:.0f}%")
+        tee_print(f"  No eligible spikes yet")
+        tee_print(f"    FADE: z {Z_TRADEABLE}-{Z_MAX_FADE}, spread<{MAX_SPREAD_FADE*100:.0f}%")
+        tee_print(f"    TREND: z>={Z_MIN_TREND}, spread<{MAX_SPREAD_TREND*100:.0f}%")
+        tee_print(f"    Both: mid {MIN_MID}-{MAX_MID}")
 
     tee_print("=" * 72)
 
@@ -906,30 +1077,45 @@ def alert_if_needed(metrics: dict, state: dict):
     if now - last < ALERT_COOLDOWN_SEC:
         return
 
-    composite = metrics["composite"]
+    fade_composite = metrics["fade_composite"]
+    trend_composite = metrics["trend_composite"]
     fade_ready = metrics["fade_ready"]
+    trend_ready = metrics["trend_ready"]
     reversion_rate = metrics["reversion_rate"]
+    continuation_rate = metrics["continuation_rate"]
     total_checked = metrics["total_checked"]
+    trend_total_checked = metrics["trend_total_checked"]
 
-    # Must have FADE-ready markets
-    if fade_ready < 1:
+    # Check FADE conditions
+    fade_ok = False
+    if fade_ready >= 1 and total_checked >= MIN_CHECKED_SPIKES and reversion_rate >= MIN_REVERSION_RATE:
+        fade_ok = True
+
+    # Check TREND conditions
+    trend_ok = False
+    if trend_ready >= 1 and trend_total_checked >= MIN_CHECKED_SPIKES and continuation_rate >= MIN_CONTINUATION_RATE:
+        trend_ok = True
+
+    if not fade_ok and not trend_ok:
         return
 
-    # Must have evidence of reversion (or not enough data yet — don't alert)
-    if total_checked >= MIN_CHECKED_SPIKES and reversion_rate < MIN_REVERSION_RATE:
-        return  # spikes exist but not reverting — bad FADE conditions
-    if total_checked < MIN_CHECKED_SPIKES:
-        return  # not enough data to confirm reversion — wait
+    # Build alert message parts
+    parts = []
+    if fade_ok:
+        parts.append(f"FADE: {fade_ready} mkts, rev {reversion_rate:.0%}, score {fade_composite:.0f}")
+    if trend_ok:
+        parts.append(f"TREND: {trend_ready} mkts, cont {continuation_rate:.0%}, score {trend_composite:.0f}")
+    detail = " | ".join(parts)
 
-    if composite >= SCORE_FIRE and fade_ready >= 2:
-        tee_print(f"\n  *** BEEP *** Score {composite:.0f}, {fade_ready} FADE-ready mkts, "
-                  f"reversion {reversion_rate:.0%}")
+    best_score = max(fade_composite if fade_ok else 0, trend_composite if trend_ok else 0)
+
+    if best_score >= SCORE_FIRE:
+        tee_print(f"\n  *** BEEP *** {detail}")
         if HAS_WINSOUND:
             winsound.Beep(BEEP_FREQ_FIRE, BEEP_DUR_FIRE)
         state["last_alert_ts"] = now
-    elif composite >= SCORE_HOT and fade_ready >= 1:
-        tee_print(f"\n  *** BEEP *** Score {composite:.0f}, {fade_ready} FADE-ready mkt(s), "
-                  f"reversion {reversion_rate:.0%}")
+    elif best_score >= SCORE_HOT:
+        tee_print(f"\n  *** BEEP *** {detail}")
         if HAS_WINSOUND:
             winsound.Beep(BEEP_FREQ_HOT, BEEP_DUR_HOT)
         state["last_alert_ts"] = now
@@ -962,11 +1148,12 @@ def main():
         return
 
     tee_print("=" * 72)
-    tee_print("POLYMARKET US ACTIVITY SCANNER v3.0")
+    tee_print("POLYMARKET US ACTIVITY SCANNER v4.0")
     tee_print("=" * 72)
-    tee_print(f"  FADE filters: z {Z_TRADEABLE}-{Z_MAX_FADE}, mid {MIN_MID}-{MAX_MID}, spread<{MAX_SPREAD_FADE*100:.0f}%")
-    tee_print(f"  Reversion: checks after {REVERSION_CHECK_SEC}s, need >{REVERSION_THRESHOLD*100:.0f}% revert")
-    tee_print(f"  Alert: score >= {SCORE_HOT} + fade_ready >= 1 + reversion >= {MIN_REVERSION_RATE*100:.0f}%")
+    tee_print(f"  FADE:  z {Z_TRADEABLE}-{Z_MAX_FADE}, spread<{MAX_SPREAD_FADE*100:.0f}%, reversion>{REVERSION_THRESHOLD*100:.0f}%")
+    tee_print(f"  TREND: z>={Z_MIN_TREND}, spread<{MAX_SPREAD_TREND*100:.0f}%, continuation>{CONTINUATION_THRESHOLD*100:.0f}%")
+    tee_print(f"  Both:  mid {MIN_MID}-{MAX_MID}, check after {REVERSION_CHECK_SEC}s")
+    tee_print(f"  Alert: score >= {SCORE_HOT} + strategy conditions met")
     tee_print(f"  Dashboard every {DASHBOARD_INTERVAL_SEC}s | Log: scanner-console-log.txt")
     tee_print()
 
