@@ -99,3 +99,1438 @@ API Base: https://api.polymarket.us
 [STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
 [STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
 [SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[SKIPS] signals:24 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 74MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:34
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:62
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:92
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:36
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:68 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:56
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:34
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:34
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24 price_filter:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:34 z_out_of_band:1 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:70
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:56
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:44
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:68 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:56
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:72
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:64
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40 game_phase_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:62
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:52
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:58
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:52
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:44
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:36
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:48 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:36
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:34
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:46 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:58
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38 late_close_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:38
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:36 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:26
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4 late_close_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:20
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 late_close_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:42
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:28
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2 game_phase_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4 z_out_of_band:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:24
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:18
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:8
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:32
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:42
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:6
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:40
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:30
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:90
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:12
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:4
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:22 game_phase_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:68
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:184
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:266
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:58
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:84
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:82
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:102 game_phase_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:70
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:98
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:36 buy_side_blocked:1
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:56
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:42
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:44
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:16
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:14
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:10
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[SKIPS] signals:2
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
+[STATUS] pos=0 eq=$4.35 pnl=$0.0000 W:0/L:0 (0%) TP:0 SL:0 T:0 BE:0 TR:0 RAM 75MB
