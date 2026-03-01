@@ -77,8 +77,9 @@ DEBUG = os.getenv("DEBUG", "0") == "1"
 POLYMARKET_KEY_ID = os.getenv("POLYMARKET_KEY_ID", "")
 POLYMARKET_SECRET_KEY = os.getenv("POLYMARKET_SECRET_KEY", "")
 
-US_API_BASE = "https://api.polymarket.us"
-US_WS_URL   = "wss://api.polymarket.us/v1/ws/markets"
+US_API_BASE     = "https://api.polymarket.us"
+US_GATEWAY_BASE = "https://gateway.polymarket.us"
+US_WS_URL       = "wss://api.polymarket.us/v1/ws/markets"
 
 HEARTBEAT             = 8
 MARKET_REFRESH_SEC    = 300
@@ -219,6 +220,25 @@ class PolymarketUSClient:
             logger.debug(f"API error {path}: {e}")
         return None
 
+    def _gateway_get(self, path: str, params: Optional[dict] = None) -> Optional[dict]:
+        """Public (unauthenticated) GET via gateway.polymarket.us.
+
+        Events and other public endpoints are served on the gateway host,
+        separate from the authenticated api host.
+        """
+        try:
+            resp = self._session.get(
+                f"{US_GATEWAY_BASE}{path}", params=params, timeout=15,
+                headers={"Accept": "application/json"},
+            )
+            if resp.status_code == 200:
+                return resp.json()
+            elif resp.status_code == 429:
+                logger.warning(f"Rate limited on gateway {path}")
+        except Exception as e:
+            logger.debug(f"Gateway error {path}: {e}")
+        return None
+
     def get_markets(self, limit: int = 500, active: bool = True, closed: bool = False) -> List[dict]:
         all_markets = []
         offset = 0
@@ -275,10 +295,24 @@ class PolymarketUSClient:
                 return result
             except:
                 pass
+        return self._get_market_details_rest(slug)
+
+    def _get_market_details_rest(self, slug: str) -> Optional[dict]:
+        """Fetch market details via raw REST, bypassing SDK.
+
+        Preserves top-level sibling fields (like 'events') that would be lost
+        by naive {"market": {...}} unwrapping. The 'events' array contains
+        live game data (live/period/score) needed by PMScoreCache.
+        """
         resp = self._raw_get(f"/v1/market/slug/{slug}")
-        # Unwrap {"market": {...}} wrapper if present
+        # Unwrap {"market": {...}} but preserve sibling fields like "events"
         if isinstance(resp, dict) and "market" in resp and isinstance(resp["market"], dict):
-            resp = resp["market"]
+            market = resp["market"]
+            # Merge any top-level siblings into the market dict
+            for key, val in resp.items():
+                if key != "market" and key not in market:
+                    market[key] = val
+            resp = market
         return resp
 
     def get_balances(self) -> dict:
@@ -388,22 +422,24 @@ def parse_slug_parts(slug: str) -> Optional[dict]:
 # -------------------- Polymarket Native Score Cache --------------------
 
 PM_SCORE_REFRESH_SEC = 60
-PM_SCORE_SPORTS = {'nba', 'cbb', 'nfl', 'ufc', 'mls'}
+PM_SCORE_SPORTS = {'nba', 'cbb', 'nfl', 'ufc', 'mls', 'nhl'}
 
 
 class PMScoreCache:
-    """Fetches and caches live score data from Polymarket's own market detail endpoint.
+    """Fetches and caches live score data from Polymarket's Events API.
 
-    Uses GET /v1/market/slug/{slug} → events[0] for live/period/score fields.
-    No external dependency — 1:1 slug match, zero mapping needed.
+    Uses GET /v1/events/slug/{event_slug} for live/period/score fields.
+    Event slugs come from STATE.meta[slug]["event_slug"] (set during discover).
+    Falls back to market detail endpoint if event_slug is missing.
     """
 
     def __init__(self):
         self._cache: Dict[str, dict] = {}
         self._lock = threading.Lock()
+        self._diag_logged = False
 
     def refresh(self, active_slugs: dict, client: 'PolymarketUSClient'):
-        """Fetch market details for today's sports slugs and extract score data."""
+        """Fetch event data for today's sports slugs and extract score data."""
         # Use local date — slug dates are US local dates, not UTC
         today_str = datetime.now().strftime('%Y-%m-%d')
         slugs_to_fetch: List[str] = []
@@ -417,64 +453,127 @@ class PMScoreCache:
                 self._cache = {}
             return
 
+        # Deduplicate event slugs — multiple markets can share the same event
+        event_slug_map: Dict[str, List[str]] = {}  # event_slug -> [market_slugs]
+        slugs_without_event: List[str] = []
+        for slug in slugs_to_fetch:
+            event_slug = active_slugs.get(slug, {}).get("event_slug", "")
+            if event_slug:
+                event_slug_map.setdefault(event_slug, []).append(slug)
+            else:
+                slugs_without_event.append(slug)
+
         new_cache: Dict[str, dict] = {}
         errors = 0
-        for slug in slugs_to_fetch:
+
+        # Primary path: fetch from Events API (has live/period/score fields)
+        for event_slug, market_slugs in event_slug_map.items():
             try:
-                details = client.get_market_details(slug)
+                ev = self._fetch_event(client, event_slug)
+                if not ev:
+                    errors += 1
+                    for slug in market_slugs:
+                        new_cache[slug] = {'pm_state': 'pre', 'period': 0, 'score_diff': -1}
+                    continue
+
+                result = self._parse_event_data(ev, market_slugs[0])
+
+                # Apply result to all market slugs sharing this event
+                for slug in market_slugs:
+                    new_cache[slug] = dict(result)  # copy so each slug gets its own dict
+                    # Enrich STATE.meta with game start time
+                    start_time = ev.get("startTime") or ev.get("start_time") or ""
+                    if start_time and slug in active_slugs:
+                        active_slugs[slug]["game_start_time"] = start_time
+            except Exception:
+                errors += 1
+                for slug in market_slugs:
+                    new_cache[slug] = {'pm_state': 'pre', 'period': 0, 'score_diff': -1}
+            time.sleep(0.1)  # 100ms between requests
+
+        # Fallback: markets without event_slug — try market detail endpoint
+        for slug in slugs_without_event:
+            try:
+                details = client._get_market_details_rest(slug)
                 if not details:
                     errors += 1
+                    new_cache[slug] = {'pm_state': 'pre', 'period': 0, 'score_diff': -1}
                     continue
                 events = details.get("events") or []
                 if not events:
-                    # No events data — cache as pre-game (safe default)
-                    new_cache[slug] = {
-                        'pm_state': 'pre',
-                        'period': 0,
-                        'score_diff': -1,
-                    }
+                    new_cache[slug] = {'pm_state': 'pre', 'period': 0, 'score_diff': -1}
                     continue
                 ev = events[0] if isinstance(events, list) else events
-                # Determine state from event fields
-                is_live = ev.get("live", False)
-                is_ended = ev.get("ended", False)
-                if is_ended:
-                    pm_state = "post"
-                elif is_live:
-                    pm_state = "in"
-                else:
-                    pm_state = "pre"
-
-                sp = parse_slug_parts(slug)
-                sport = sp['sport'] if sp else ''
-                period = self._parse_period(ev.get("period", ""), sport)
-                score_diff = self._parse_score_diff(ev.get("score", ""))
-
-                new_cache[slug] = {
-                    'pm_state': pm_state,
-                    'period': period,
-                    'score_diff': score_diff,
-                    'elapsed': ev.get("elapsed") or "",
-                    '_raw_score': ev.get("score") or "",
-                }
-                # Enrich STATE.meta with real game start time from events[0]
-                # (REST listing doesn't include gameStartTime — this is the only source)
-                start_time = ev.get("startTime") or ""
-                if start_time and slug in active_slugs:
-                    active_slugs[slug]["game_start_time"] = start_time
+                new_cache[slug] = self._parse_event_data(ev, slug)
             except Exception:
                 errors += 1
-            time.sleep(0.1)  # 100ms between requests — ~5-8s for 50-80 slugs
+                new_cache[slug] = {'pm_state': 'pre', 'period': 0, 'score_diff': -1}
+            time.sleep(0.1)
 
         with self._lock:
             self._cache = new_cache
 
         live = sum(1 for v in new_cache.values() if v['pm_state'] == 'in')
-        logger.info(f"[PM-SCORE] {len(new_cache)}/{len(slugs_to_fetch)} fetched ({live} live, {errors} errors)")
+        logger.info(
+            f"[PM-SCORE] {len(new_cache)}/{len(slugs_to_fetch)} fetched "
+            f"({live} live, {errors} errors, {len(event_slug_map)} events, "
+            f"{len(slugs_without_event)} no-event-slug)"
+        )
+
+    def _fetch_event(self, client: 'PolymarketUSClient', event_slug: str) -> Optional[dict]:
+        """Fetch event data from GET /v1/events/slug/{event_slug}.
+
+        Tries gateway host first (public endpoints), falls back to api host.
+        """
+        path = f"/v1/events/slug/{event_slug}"
+        resp = client._gateway_get(path)
+        source = "gateway"
+        if not resp:
+            resp = client._raw_get(path)
+            source = "api"
+        if not resp:
+            return None
+        # Unwrap {"event": {...}} if present
+        if isinstance(resp, dict) and "event" in resp and isinstance(resp["event"], dict):
+            resp = resp["event"]
+        # One-time diagnostic: log event response structure
+        if not self._diag_logged and resp:
+            logger.info(
+                f"[PM-SCORE-DIAG] event_slug={event_slug} source={source} "
+                f"keys={sorted(resp.keys())[:20]} "
+                f"live={resp.get('live')} ended={resp.get('ended')} "
+                f"period={resp.get('period')} score={resp.get('score')}"
+            )
+            self._diag_logged = True
+        return resp
+
+    def _parse_event_data(self, ev: dict, slug: str) -> dict:
+        """Parse event dict into standardized score cache entry."""
+        is_live = ev.get("live", False)
+        is_ended = ev.get("ended", False)
+        if is_ended:
+            pm_state = "post"
+        elif is_live:
+            pm_state = "in"
+        else:
+            pm_state = "pre"
+
+        sp = parse_slug_parts(slug)
+        sport = sp['sport'] if sp else ''
+        period = self._parse_period(ev.get("period", ""), sport)
+        score_diff = self._parse_score_diff(ev.get("score", ""))
+
+        return {
+            'pm_state': pm_state,
+            'period': period,
+            'score_diff': score_diff,
+            'elapsed': ev.get("elapsed") or "",
+            '_raw_score': ev.get("score") or "",
+        }
 
     @staticmethod
     def _parse_period(period_str: str, sport: str) -> int:
-        """Convert period string to numeric. 'Q2'→2, 'H1'→1, 'OT'→5/3, ''→0."""
+        """Convert period string to numeric. 'Q2'→2, 'H1'→1, 'P3'→3, 'OT'→varies, ''→0."""
         if not period_str:
             return 0
         p = str(period_str).strip().upper()
@@ -489,12 +588,16 @@ class PMScoreCache:
         # Half: H1, H2
         if p.startswith('H') and len(p) == 2 and p[1].isdigit():
             return int(p[1])
-        # Overtime
+        # Period: P1-P3 (NHL)
+        if p.startswith('P') and len(p) == 2 and p[1].isdigit():
+            return int(p[1])
+        # Overtime: sport-specific "next period after regulation"
         if p.startswith('OT'):
-            # CBB has 2 halves, so OT=3; NBA has 4 quarters, so OT=5
             if sport == 'cbb':
-                return 3
-            return 5
+                return 3   # CBB: 2 halves, OT=3
+            if sport == 'nhl':
+                return 4   # NHL: 3 periods, OT=4
+            return 5       # NBA/NFL: 4 quarters, OT=5
         return 0
 
     @staticmethod
@@ -533,6 +636,7 @@ BLOWOUT_THRESHOLDS = {
     'cbb': (2, 12),   # 2nd half, 12+ points
     'nfl': (3, 14),   # 3rd quarter+, 2+ TDs
     'mls': (2, 2),    # 2nd half, 2+ goals
+    'nhl': (3, 3),    # 3rd period+, 3+ goals
 }
 
 _blowout_header_written = False
@@ -857,19 +961,30 @@ def discover(refresh: bool = False):
                 skipped += 1
                 continue
 
-        STATE.meta[slug] = {
+        new_meta = {
             "question": m.get("question") or m.get("title") or "",
             "event_slug": (m.get("events", [{}])[0].get("slug", "")
                            if m.get("events") else m.get("eventSlug", "")),
             "volume24h": vol,
             "category": m.get("category", ""),
             "market_type": m.get("marketType", ""),
-            "shares_traded": extract_amount_value(m.get("sharesTraded", 0)),  # New: Store initial
+            "shares_traded": extract_amount_value(m.get("sharesTraded", 0)),
             "start_date": m.get("startDate") or m.get("start_date") or "",
             "end_date": m.get("endDate") or m.get("end_date") or "",
             "game_id": m.get("gameId") or m.get("game_id") or "",
             "game_start_time": m.get("gameStartTime") or "",
         }
+        existing = STATE.meta.get(slug)
+        if existing:
+            # Preserve WS-populated fields — REST doesn't provide OI for sports
+            for ws_key in ("open_interest", "shares_traded"):
+                ws_val = existing.get(ws_key, 0)
+                if ws_val and ws_val > (new_meta.get(ws_key, 0) or 0):
+                    new_meta[ws_key] = ws_val
+            # Preserve game_start_time from PMScoreCache enrichment
+            if existing.get("game_start_time") and not new_meta.get("game_start_time"):
+                new_meta["game_start_time"] = existing["game_start_time"]
+        STATE.meta[slug] = new_meta
         loaded += 1
 
         if loaded % 100 == 0:

@@ -152,6 +152,7 @@ LATE_GAME_CLOSE = {
     'nba': {'period': 4, 'margin': 10},   # Q4, within 10 points
     'nfl': {'period': 4, 'margin': 8},    # Q4, within 8 points
     'mls': {'period': 2, 'margin': 1},    # 2nd half, within 1 goal
+    'nhl': {'period': 3, 'margin': 2},    # 3rd period, within 2 goals
 }
 
 # Book spread rejection: raw (ask-bid)/mid — catches wide books even when slippage guard passes
@@ -217,6 +218,7 @@ CONV_THRESHOLDS = {
     'cbb': {'period': 2, 'min_diff': 18, 'max_implied': 0.88},
     'nfl': {'period': 4, 'min_diff': 21, 'max_implied': 0.88},
     'mls': {'period': 2, 'min_diff': 3,  'max_implied': 0.88},
+    'nhl': {'period': 3, 'min_diff': 4,  'max_implied': 0.88},
 }
 
 RATE_LIMIT_CALLS = 40
@@ -415,20 +417,49 @@ def append_trade(row: dict):
 class RearmTracker:
     def __init__(self, max_entries: int = MAX_REARM_ENTRIES, ttl_sec: float = REARM_TTL_SEC):
         self._lock = threading.Lock()
-        self._data: Dict[str, float] = {}
+        self._data: Dict[str, float] = {}  # tid -> last_close_ts
+        self._context: Dict[str, dict] = {}  # tid -> {entry_mid, side}
         self._max_entries = max_entries
         self._ttl_sec = ttl_sec
         self._last_cleanup = time.time()
-    
+
     def can_rearm(self, tid: str) -> bool:
         with self._lock:
             self._maybe_cleanup()
             return (now() - self._data.get(tid, 0.0)) >= MIN_REARM_SEC
-    
-    def touch(self, tid: str):
+
+    def is_trending_against(self, tid: str, current_mid: float, side: str) -> bool:
+        """Block re-entry if price has drifted further against the FADE thesis.
+
+        For BUY_NO (fading YES spikes): block if YES mid >= previous entry mid
+          (spike hasn't reverted — market is trending up).
+        For BUY (fading YES dips): block if YES mid <= previous entry mid
+          (dip hasn't reverted — market is trending down).
+        """
+        with self._lock:
+            ctx = self._context.get(tid)
+            if not ctx:
+                return False
+            prev_entry = ctx.get("entry_mid", 0)
+            prev_side = ctx.get("side", "")
+            if not prev_entry or not prev_side:
+                return False
+            # Only apply to same-side re-entry
+            if side != prev_side:
+                return False
+            if "NO" in side.upper() or "SHORT" in side.upper():
+                # BUY_NO: fading YES spike — block if YES still at/above entry
+                return current_mid >= prev_entry
+            else:
+                # BUY: fading YES dip — block if YES still at/below entry
+                return current_mid <= prev_entry
+
+    def touch(self, tid: str, entry_mid: float = 0, side: str = ""):
         with self._lock:
             self._data[tid] = now()
-    
+            if entry_mid > 0 and side:
+                self._context[tid] = {"entry_mid": entry_mid, "side": side}
+
     def _maybe_cleanup(self):
         current = time.time()
         if current - self._last_cleanup < 60:
@@ -438,16 +469,18 @@ class RearmTracker:
         expired = [tid for tid, ts in self._data.items() if ts < cutoff]
         for tid in expired:
             del self._data[tid]
+            self._context.pop(tid, None)
         if len(self._data) > self._max_entries:
             sorted_items = sorted(self._data.items(), key=lambda x: x[1])
             for tid, _ in sorted_items[:len(self._data) - self._max_entries]:
                 del self._data[tid]
-    
+                self._context.pop(tid, None)
+
     def force_cleanup(self):
         with self._lock:
             self._last_cleanup = 0
             self._maybe_cleanup()
-    
+
     def __len__(self) -> int:
         with self._lock:
             return len(self._data)
@@ -1638,6 +1671,7 @@ class SkipCounters:
     circuit_breaker: int = 0
     buy_side_blocked: int = 0
     late_close_blocked: int = 0
+    trending_reentry: int = 0
     signals_processed: int = 0
     def clear(self):
         for k in self.__dict__:
@@ -2174,7 +2208,7 @@ def main():
                     if res:
                         _, pnl = res
                         print(f"✅ [TP] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                        rearm_tracker.touch(tid)
+                        rearm_tracker.touch(tid, pos.entry_mid, pos.side)
                     continue
 
                 if hit_stop_loss(pos.side, pos.entry_mid, current, ep["sl"]):
@@ -2182,7 +2216,7 @@ def main():
                     if res:
                         _, pnl = res
                         print(f"🛑 [SL] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                        rearm_tracker.touch(tid)
+                        rearm_tracker.touch(tid, pos.entry_mid, pos.side)
                     continue
 
                 if ENABLE_TRAILING_STOP and not is_stale:
@@ -2197,7 +2231,7 @@ def main():
                         if res:
                             _, pnl = res
                             print(f"✅ [TRAIL] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f} peak={new_peak*100:.1f}%")
-                            rearm_tracker.touch(tid)
+                            rearm_tracker.touch(tid, pos.entry_mid, pos.side)
                         continue
 
                 if not is_stale and hit_breakeven_exit(pos.side, pos.entry_mid, current, age, ep["be_sec"], ep["be_tol"]):
@@ -2210,7 +2244,7 @@ def main():
                         if res:
                             _, pnl = res
                             print(f"↔️ [BE] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                            rearm_tracker.touch(tid)
+                            rearm_tracker.touch(tid, pos.entry_mid, pos.side)
                         continue
 
                 if age >= ep["time"]:
@@ -2223,7 +2257,7 @@ def main():
                         if res:
                             _, pnl = res
                             print(f"⏰ [TIME] {stag}{tid[:16]}... {pos.side} pnl=${pnl:.4f}")
-                            rearm_tracker.touch(tid)
+                            rearm_tracker.touch(tid, pos.entry_mid, pos.side)
 
             def try_open(rows, src):
                 nonlocal last_open_ts
@@ -2300,6 +2334,9 @@ def main():
                             continue
                         if not rearm_tracker.can_rearm(tid):
                             skips.rearm_gate += 1
+                            continue
+                        if rearm_tracker.is_trending_against(tid, mid, side):
+                            skips.trending_reentry += 1
                             continue
                         if time.time() - last_open_ts < MIN_OPEN_INTERVAL_SEC:
                             skips.open_cooldown += 1

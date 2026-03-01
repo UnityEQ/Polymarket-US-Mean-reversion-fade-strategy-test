@@ -38,6 +38,11 @@
 | 2026-02-09 | stfpa-chist (pre) | CBB | ? | varies | SKIP (x10) | All pre-game ACCEPT_FADE signals had 5-15% real book spreads. Entry slippage guard rejected all. |
 
 | 2026-02-22 | fair-quin | CBB | ? | 0.270 | YES (LIVE) | BUY_NO at YES=0.260 (bid). 1.34 shares. SL hit after 6min, -$0.1168 (10.8% actual vs 4% target). Peak exec profit 4.1% (ask=0.240 for 60s) but TP 6% unreachable. Trailing stop armed but peak decayed + consecutive reset killed it (see analysis). Game event gap: mid 0.295→0.325 in one 5s poll. |
+| 2026-02-28 | CHI-COL #1 | NHL | ? | 0.255 | YES (LIVE) | BUY_NO, bid=0.260/ask=0.290. SL in 33s, -$0.0901. Book gapped bid=0.240/ask=0.330 (9¢ spread) in 30s. First NHL trade ever. |
+| 2026-02-28 | CHI-COL #2 | NHL | ? | 0.310 | YES (LIVE) | BUY_NO, bid=0.310/ask=0.320. SL in 64s, -$0.1817. Ask gapped 0.320→0.570 in one 5s poll. 18.2% actual loss (4.5x target). Re-entry into trending market. |
+| 2026-02-28 | BUF-TB #1 | NHL | ? | 0.310 | YES (LIVE) | BUY_NO, bid=0.300/ask=0.320 (depth 3865 qty on bid1). BE in 8min, -$0.0382. Price sat perfectly flat — pure fee drag. Delta 1.6% barely passed 1.5% floor. |
+| 2026-02-28 | BUF-TB #2 | NHL | ? | 0.370 | YES (LIVE) | BUY_NO, bid=0.390/ask=0.400 (thin: bid1=129, ask1=25). SL in 35s, -$0.1232. Book gapped bid=0.440/ask=0.460. 12.3% actual loss (3.1x target). |
+| 2026-02-28 | DET-CAR | NHL | ? | 0.270 | SKIP | Entry slippage guard: 5.6% > 3.0% threshold. Spread bid=0.250/ask=0.290 (14.8% book spread). Correctly prevented 5th loss. |
 
 ## Observations
 
