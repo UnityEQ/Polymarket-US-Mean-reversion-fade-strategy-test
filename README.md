@@ -3,7 +3,7 @@
 - Only test with a balance of $10 max. NEVER test live trades on big balances
 - You will not make money using this bot, it's strategy is highly dependant on alot of "noise."
 
-- This project is for understanding how to interact with the api in different ways (this is just some of them)
+- This project is for understanding how to interact with the api in different ways (this is just one of them)
 
 # Polymarket US Hunter
 
@@ -66,7 +66,7 @@ Run the scanner first to see if market conditions are worth trading. If it says 
 
 ## How It Works
 
-**The monitor** connects to the Polymarket US WebSocket and subscribes to all active markets with a single wildcard subscribe (`market_slugs: []`). It streams best-bid/offer data and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase. A background thread fetches live game data from Polymarket's own market detail endpoint every 60s to classify each market as PRE_GAME, LIVE, POST_GAME, or UNKNOWN — along with the current game period and score differential.
+**The monitor** connects to the Polymarket US WebSocket and subscribes to all active markets with a single wildcard subscribe (`market_slugs: []`). It streams best-bid/offer data and runs a z-score pipeline on every price update. When it detects a spike or dip that exceeds configurable thresholds, it writes a signal row to a CSV file with the market slug, direction, z-score, spread, and game phase. A background thread fetches live game data from Polymarket's Events API (`GET /v1/events/slug/{event_slug}`) every 60s to classify each market as PRE_GAME, LIVE, POST_GAME, or UNKNOWN — along with the current game period and score differential.
 
 **The trade bot** tails those CSV files in real-time. It runs two independent strategies:
 
@@ -133,13 +133,13 @@ python monitor.py --ws-test --duration=60      # Same but listen for 60s
 
 ## Live Score Integration
 
-The monitor fetches live game data from Polymarket's own market detail endpoint (`GET /v1/market/slug/{slug}` → `events[0]`) every 60 seconds. This is a 1:1 slug match with zero external dependencies — no team mapping or fuzzy matching needed. It uses your machine's **local time** (not UTC) for slug date comparisons — this is important because after ~7 PM ET (midnight UTC), UTC rolls to the next day which would incorrectly filter tonight's live games as stale. It powers three filters that prevent the bot from entering bad trades:
+The monitor fetches live game data from Polymarket's Events API (`GET /v1/events/slug/{event_slug}` on `gateway.polymarket.us`) every 60 seconds, with a fallback to the market detail endpoint. Event slugs are extracted during market discovery — multiple markets sharing the same event only trigger one fetch. No team mapping or fuzzy matching needed. It uses your machine's **local time** (not UTC) for slug date comparisons — this is important because after ~7 PM ET (midnight UTC), UTC rolls to the next day which would incorrectly filter tonight's live games as stale. It powers three filters that prevent the bot from entering bad trades:
 
 1. **Pre-game blocking** — Game hasn't started yet, so price spikes are just noise from thin books. Blocked.
 2. **Post-game blocking** — Game is over, so prices are settling to 0 or 1. Blocked.
 3. **Late-game close contest blocking** — Final period of a close game (e.g. 4th quarter NBA, margin <= 10). Price spikes here are real game events, not noise. Blocked.
 
-Covers NBA, CBB, NFL, UFC, and MLS. Markets that can't be matched to score data fall through to UNKNOWN and are still tradeable — score integration only improves filtering when data is available, it never blocks the bot from running.
+Covers NBA, CBB, NFL, NHL, UFC, and MLS. Markets that can't be matched to score data fall through to UNKNOWN and are still tradeable — score integration only improves filtering when data is available, it never blocks the bot from running.
 
 ## Notes
 
